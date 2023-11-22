@@ -59,7 +59,7 @@ class Unit(models.Model):
 
     
     
-    
+     
 class AddItem(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,default='')
     type=models.TextField(max_length=255)

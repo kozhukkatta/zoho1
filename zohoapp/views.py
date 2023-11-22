@@ -15004,14 +15004,17 @@ def vendorbal_customer(request):
     for s in recurringbill:
         sum1=sum1+s.grand_total
     grand=sum+sum1
-    return render(request, 'vendor_customer.html', {'cust': customer1, 'company':company,'purchasebill':purchasebill, 'sum': sum,'recurringbill':recurringbill,'sum1':sum1,'grand':grand})
+    vend = vendor_table.objects.filter(user=request.user)
+
+    return render(request, 'vendor_customer.html', {'vend': vend,'cust': customer1, 'company':company,'purchasebill':purchasebill, 'sum': sum,'recurringbill':recurringbill,'sum1':sum1,'grand':grand})
 
 def bill_details(request):
     company = company_details.objects.get(user=request.user)
     purchasebill = PurchaseBills.objects.filter(user=request.user)
     recurringbill = recurring_bills.objects.filter(user=request.user)
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
-    
+    vend = vendor_table.objects.filter(user=request.user)
+    print(vend)
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
         vendor_id = vendor_name[0]
@@ -15023,8 +15026,14 @@ def bill_details(request):
         vendor = vendor_table.objects.filter(id=vendor_id).first()  
         if vendor:
             bill.vendor_email = vendor.vendor_email  
-   
-    return render(request,'bill_details.html',{'company': company,'purchasebill': purchasebill,'recurringbill': recurringbill,'vendorcredits': vendorcredits})
+
+    for ven in vendorcredits:
+        vendor_name = ven.vendor_name.split(' ') 
+        vendor_id = vendor_name[2]
+        vendor_name = ' '.join(vendor_name[0:1])
+        ven.vendor_name=vendor_name
+
+    return render(request,'bill_details.html',{'vend': vend,'company': company,'purchasebill': purchasebill,'recurringbill': recurringbill,'vendorcredits': vendorcredits})
 
 def vendor_customize_report(request):
     company_data = company_details.objects.get(user=request.user)

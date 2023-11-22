@@ -82,8 +82,8 @@
   <div class="mt-1">
       <datalist onclick="getValue()" id="customers" >
         
-        {% for v in purchasebill %}
-        <option value="{{ v.vendor_name }}" >
+        {% for v in vend %}
+        <option value="{{ v.first_name }} {{ v.last_name }}" >
     {% endfor %}
 
       
@@ -417,6 +417,9 @@ function calculateTotalBillAmount() {
  }
       }
       
+      document.addEventListener("DOMContentLoaded", function() {
+        calculateTotalBillAmount();
+    });
 </script>
 
 

@@ -82,9 +82,9 @@
   <div class="mt-1">
       <datalist onclick="getValue()" id="customers" >
         
-        {% for v in purchasebill %}
-        <option value="{{ v.vendor_name }}" >
-    {% endfor %}
+        {% for v in vend %}
+          <option value="{{ v.first_name }} {{ v.last_name }}" >
+        {% endfor %}
 
       
       </datalist>
@@ -129,6 +129,7 @@ searchInput.addEventListener("input", function () {
           <tr>
               <th class="text text-white">Name</th>
               <th class="text text-white">Email</th>
+              <th class="text text-white">Sub Total</th>
               <th class="text text-white">Bill Total</th>
               <th class="text text-white">Balance</th>
           </tr>
