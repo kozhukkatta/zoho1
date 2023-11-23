@@ -138,24 +138,27 @@ searchInput.addEventListener("input", function () {
           {% for i in purchasebill %}
           <tr>
               <td class="text text-white">{{i.vendor_name}}</td>
-              <td class="text text-white">{{i.customer_email}}</td>
+              <td class="text text-white">{{i.vendor_email}}</td>
+              <td class="text text-white">{{i.sub_total}}</td>
               <td class="text text-white">{{i.total}}</td>
               <td class="text text-white">0</td>
           </tr>
           {% endfor %}
-          {% for i in recurringbill %}
+          {% for j in recurringbill %}
           <tr>
-              <td class="text text-white">{{i.vendor_name}}</td>
-              <td class="text text-white">{{i.user.email}}</td>
-              <td class="text text-white">{{i.grand_total}}</td>
+              <td class="text text-white">{{j.vendor_name}}</td>
+              <td class="text text-white">{{j.vendor_email}}</td>
+              <td class="text text-white">{{j.sub_total}}</td>
+              <td class="text text-white">{{j.grand_total}}</td>
               <td class="text text-white">0</td>
           </tr>
           {% endfor %}
-          {% for i in vendorcredit %}
+          {% for k in vendorcredits %}
           <tr>
-              <td class="text text-white">{{i.user.first_name}} {{i.user.last_name}}</td>
-              <td class="text text-white">{{i.user.email}}</td>
-              <td class="text text-white">{{i.grandtotal}}</td>
+              <td class="text text-white">{{k.vendor_name}}sf</td>
+              <td class="text text-white">{{k.user.email}}</td>
+              <td class="text text-white">{{k.sub_total}}</td>
+              <td class="text text-white">{{k.grandtotal}}</td>
               <td class="text text-white">0</td>
           </tr>
           {% endfor %}
