@@ -101,7 +101,7 @@ searchInput.addEventListener("input", function () {
          document.getElementById("selected_customer_heading").innerHTML =  searchValue+' Balances';
     } else {
         document.getElementById("result").innerHTML =  '{{company.company_name}}';
-        document.getElementById("selected_customer_heading").innerHTML =  'Bill Details';
+        document.getElementById("selected_customer_heading").innerHTML =  'Vendor Balances';
     }
 });
 </script>
@@ -117,7 +117,7 @@ searchInput.addEventListener("input", function () {
               </div>
               {% endif %}
               <div >
-                  <a class="text-white" id="selected_customer_heading"><h2>Bill Details</h2></a>
+                  <a class="text-white" id="selected_customer_heading"><h2>Vendor Balances</h2></a>
               </div>
               <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
           </div>
@@ -137,28 +137,37 @@ searchInput.addEventListener("input", function () {
       <tbody>
           {% for i in purchasebill %}
           <tr>
-              <td class="text text-white">{{i.vendor_name}}</td>
+              <td class="text text-white">{{i.vendor_name}}1</td>
               <td class="text text-white">{{i.vendor_email}}</td>
               <td class="text text-white">{{i.sub_total}}</td>
               <td class="text text-white">{{i.total}}</td>
-              <td class="text text-white">0</td>
+              <td class="text text-white">{{i.balance}}</td>
           </tr>
           {% endfor %}
           {% for j in recurringbill %}
           <tr>
-              <td class="text text-white">{{j.vendor_name}}</td>
+              <td class="text text-white">{{j.vendor_name}}2</td>
               <td class="text text-white">{{j.vendor_email}}</td>
               <td class="text text-white">{{j.sub_total}}</td>
               <td class="text text-white">{{j.grand_total}}</td>
-              <td class="text text-white">0</td>
+              <td class="text text-white">{{j.balance}}</td>
           </tr>
           {% endfor %}
           {% for k in vendorcredits %}
           <tr>
-              <td class="text text-white">{{k.vendor_name}}sf</td>
-              <td class="text text-white">{{k.user.email}}</td>
+              <td class="text text-white">{{k.vendor_name}}3</td>
+              <td class="text text-white">{{k.vendor_email}}</td>
               <td class="text text-white">{{k.sub_total}}</td>
-              <td class="text text-white">{{k.grandtotal}}</td>
+              <td class="text text-white">{{k.grand_total}}</td>
+              <td class="text text-white">0</td>
+          </tr>
+          {% endfor %}
+          {% for r in paymentmade %}
+          <tr>
+              <td class="text text-white">{{r.vendor.first_name}} {{r.vendor.last_name}}4</td>
+              <td class="text text-white">{{r.vendor.vendor_email}}</td>
+              <td class="text text-white">{{r.sub_total}}</td>
+              <td class="text text-white">{{r.grand_total}}</td>
               <td class="text text-white">0</td>
           </tr>
           {% endfor %}
@@ -167,6 +176,9 @@ searchInput.addEventListener("input", function () {
           </tr> {% endcomment %}
       </tbody>
       </table> 
+      <div>Purchase bill :{{pur}}</div>
+      <div>Recurring bills bill :{{rec}}</div>
+      <div>Vendor Credits bill :{{vendo}}</div>
       <div id="total-bill-amount" class="mt-3" style="color: white;"></div>
       <div>
           <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
@@ -187,7 +199,7 @@ searchInput.addEventListener("input", function () {
   function handleInputChange() {
       const selectedCustomer = this.value;
       const headingElement = document.getElementById("selected_customer_heading");
-      headingElement.innerHTML = selectedCustomer ? <h2>${selectedCustomer} Balances</h2> : "<h2>Bill Details</h2>";
+      headingElement.innerHTML = selectedCustomer ? <h2>${selectedCustomer} Balances</h2> : "<h2>Vendor Balances</h2>";
   }
   
   // Add event listener to the input field for the "input" event
@@ -228,7 +240,7 @@ searchInput.addEventListener("input", function () {
       let totalBillAmount = 0;
     
       visibleRows.forEach(row => {
-          const billAmountCell = row.querySelector('td:nth-child(3)');
+          const billAmountCell = row.querySelector('td:nth-child(4)');
           const billAmount = parseFloat(billAmountCell.textContent);
           if (!isNaN(billAmount)) {
               totalBillAmount += billAmount;
@@ -277,7 +289,7 @@ searchInput.addEventListener("input", function () {
   
     const pdfOptions = {
       margin: 0,
-      filename: '{{company.company_name}} Bill Details.pdf',
+      filename: '{{company.company_name}} Vendor Balances.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
@@ -415,7 +427,7 @@ function calculateTotalBillAmount() {
   let totalBillAmount = 0;
 
   visibleRows.forEach(row => {
-      const billAmountCell = row.querySelector('td:nth-child(3)');
+      const billAmountCell = row.querySelector('td:nth-child(4)');
       const billAmount = parseFloat(billAmountCell.textContent);
       if (!isNaN(billAmount)) {
           totalBillAmount += billAmount;
@@ -423,11 +435,13 @@ function calculateTotalBillAmount() {
   });
 
   const totalBillAmountElement = document.getElementById('total-bill-amount');
-  totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(2)}`;
+  totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(1)}`;
 }
  }
       }
-      
+      document.addEventListener("DOMContentLoaded", function() {
+        calculateTotalBillAmount();
+    });     
 </script>
 
 
