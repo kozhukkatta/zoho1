@@ -127,6 +127,7 @@ searchInput.addEventListener("input", function () {
       <table class="table table-bordered table-striped mt-4" id="data-table">
         <thead class="text-center">
           <tr>
+              <th class="text text-white">Date</th>
               <th class="text text-white">Name</th>
               <th class="text text-white">Email</th>
               <th class="text text-white">Sub Total</th>
@@ -137,6 +138,7 @@ searchInput.addEventListener("input", function () {
       <tbody>
           {% for i in purchasebill %}
           <tr>
+              <td class="text text-white">{{i.bill_date}}</td>
               <td class="text text-white">{{i.vendor_name}}1</td>
               <td class="text text-white">{{i.vendor_email}}</td>
               <td class="text text-white">{{i.sub_total}}</td>
@@ -144,39 +146,12 @@ searchInput.addEventListener("input", function () {
               <td class="text text-white">{{i.balance}}</td>
           </tr>
           {% endfor %}
-          {% for j in recurringbill %}
-          <tr>
-              <td class="text text-white">{{j.vendor_name}}2</td>
-              <td class="text text-white">{{j.vendor_email}}</td>
-              <td class="text text-white">{{j.sub_total}}</td>
-              <td class="text text-white">{{j.grand_total}}</td>
-              <td class="text text-white">{{j.balance}}</td>
-          </tr>
-          {% endfor %}
-          {% for k in vendorcredits %}
-          <tr>
-              <td class="text text-white">{{k.vendor_name}}3</td>
-              <td class="text text-white">{{k.vendor_email}}</td>
-              <td class="text text-white">{{k.sub_total}}</td>
-              <td class="text text-white">{{k.grand_total}}</td>
-              <td class="text text-white">0</td>
-          </tr>
-          {% endfor %}
-          {% for r in paymentmade %}
-          <tr>
-              <td class="text text-white">{{r.vendor.first_name}} {{r.vendor.last_name}}4</td>
-              <td class="text text-white">{{r.vendor.vendor_email}}</td>
-              <td class="text text-white">{{r.sub_total}}</td>
-              <td class="text text-white">{{r.grand_total}}</td>
-              <td class="text text-white">0</td>
-          </tr>
-          {% endfor %}
+          
+          
+         
          
       </tbody>
       </table> 
-      <div>Purchase bill :{{pur}}</div>
-      <div>Recurring bills bill :{{rec}}</div>
-      <div>Vendor Credits bill :{{vendo}}</div>
       <div id="total-bill-amount" class="mt-3" class="text text-white" style="margin-left:55vw;"></div>
       <div>
           <div id="noDataMessage" style="display: none;" >No data found for selected dates.</div>	
@@ -399,7 +374,7 @@ function filterData() {
       const rows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
       for (let i = 0; i < rows.length; i++) {
-          const rowDateText = rows[i].getElementsByTagName('td')[1].textContent;
+          const rowDateText = rows[i].getElementsByTagName('td')[0].textContent;
           const rowDate = new Date(rowDateText);
 
           if (!isNaN(rowDate)) {
@@ -417,6 +392,7 @@ function filterData() {
     calculateTotalBillAmount();
   }
 }
+
 //------------
 function calculateTotalBillAmount() {
   const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
@@ -433,7 +409,6 @@ function calculateTotalBillAmount() {
   });
 
   const totalBillAmountElement = document.getElementById('total-bill-amount');
-  totalBillAmountElement.style.color = '#000000';
   totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(1)}`;
 }
  }

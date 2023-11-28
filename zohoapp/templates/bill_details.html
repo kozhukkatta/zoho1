@@ -1,429 +1,229 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
-<style>
+{% block content %}
 
-  
-  .col {
-      width: 100%;
-      padding: 10px;
-      box-sizing: border-box;
-  }
-  
-  @media print {
-    table, th, td, tr { 
-      border: 1px solid black;
-      padding: 10px; /* Ensure black borders when printing */
-     
-    }
-    table {
-    margin: 0 auto; /* Center the table horizontally */
-  }
-
-  }
-  @media (max-width: 768px) {
-  
-      #d1,
-      #d2,
-      #search-box {
-          width: 30%;
-      }
-
-
-  }
-
-  .daterangepicker {
-      background-color: #f0f0f0;
-      color: #000;
-  }
-
- 
-</style>
-
-
-
-<div class="d-flex justify-content-between align-items-center" style="margin-top: 40px;">
-  <div class="d-flex">
-      <div class="col">
-          <form action="" method="post" id="date-form">
-              {% csrf_token %}
-              From <input type="date" id="d1" name="d1" required>
-              To <input type="date" id="d2" name="d2" required>
-              <span id="date-error" style="color: red;"></span>
-          </form>
-      </div>
-  </div>
-  
-  <div class="d-flex">
-     
-      <!-- <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp; -->  
-      <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp;
-      <button class="btn btn-light mr-2" id="pdf" onclick="exportAsPDF()"><i class="fa fa-file-pdf-o"></i>PDF</button>
-    
-      <div style="width: 3px;"></div>
-      <div class="dropdown">
-          <button class="btn btn-light mr-3 dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              Export
-          </button>
-          <div class="dropdown-menu" aria-labelledby="exportDropdown">
-           
-              <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
-          </div>
-          <a href="{% url 'report_inventory_view' %}" class="btn btn-light" style=" color: rgb(1, 1, 1);">
-              <i class="fa fa-times-circle"></i>
-          </a>
-      </div>
-      
-  </div>
-  
-</div>
-<div  style="top: 7rem; " > 
-  <div class="mt-1">
-      <datalist onclick="getValue()" id="customers" >
-        
-        {% for v in vend %}
-        <option value="{{ v.first_name }} {{ v.last_name }}" >
-    {% endfor %}
-
-      
-      </datalist>
-  </div>
-  <label>Vendor Name :</label>
-<input type="text" onclick="getValue()" id="search"  placeholder="Search.." autocomplete="off"  list="customers">
-<p id="result" hidden>'{{company.company_name}}'</p>
 <script>
-var searchInput = document.getElementById("search");
-searchInput.addEventListener("input", function () {
-    var searchValue = searchInput.value;
-   if (searchValue.trim() !== "") {
-         document.getElementById("result").innerHTML =  searchValue;
-         document.getElementById("selected_customer_heading").innerHTML =  searchValue+' Balances';
-    } else {
-        document.getElementById("result").innerHTML =  '{{company.company_name}}';
-        document.getElementById("selected_customer_heading").innerHTML =  'Bill Details';
-    }
-});
-</script>
-<div class="container-fluid" id="container-to-print"> 
-  <div class="row pt-5">
-    <center>
-      <div class="row">
-        {% if company.company_name != None %}
-         <div  ><h2 class="text-white" >
-              {{company.company_name }}
-              {% else %}
-              Add Company</h2>
-              </div>
-              {% endif %}
-              <div >
-                  <a class="text-white" id="selected_customer_heading"><h2>Bill Details</h2></a>
-              </div>
-              <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
-          </div>
-      </div>      
-  </center>
-      
-      <div class="table-responsive"> 
-      <table class="table table-bordered table-striped mt-4" id="data-table">
-        <thead class="text-white">
-            <tr>
-              <th style="color: white;">Bill Number</th>
-              <th style="color: white;">Bill Date</th>
-              <th style="color: white;">Due Date</th>
-              <th style="color: white;">Vendor Name</th>
-              <th style="color: white;">Email</th>
-              <th style="color: white;">Bill Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-          
-           {% for i in purchasebill %}
-             
-            <tr>         
-              <td style="color: white;">{{ i.bill_no }}</td>
-              <td style="color: white;">{{ i.bill_date }}</td>
-              <td style="color: white;">{{ i.due_date }}</td> 
-              <td style="color: white;">{{ i.vendor_name }}</td>
-              <td style="color: white;">{{ i.vendor_email }}</td>
-              <td style="color: white;">{{ i.total }}</td>
-            </tr>
-            {% endfor %} 
+  // Define a function to show or hide the "select1_div" element based on the "enter rate individually" radio button
+function showSelect1Div() {
+  var select1Div = document.getElementById("select1_div");
+  var cust = document.getElementById("cust");
+  var select3Div = document.getElementById("select3_div");
+  var select4Div = document.getElementById("select4_div");
+  var enterRateRadio = document.getElementById("tax2");
 
-
-             {% for i in recurringbill %}
-            <tr>
-              <td style="color: white;">{{ i.bill_no }}</td>
-              <td style="color: white;">{{ i.start_date }}</td>
-              <td style="color: white;">{{ i.end_date }}</td>
-              <td style="color: white;">{{ i.vendor_name }}</td>
-              <td style="color: white;">{{ i.vendor_email }}</td> 
-              <td style="color: white;">{{ i.grand_total }}</td>
-            </tr>
-            {% endfor %}
-
-            {% for i in vendorcredits %}
-            <tr>
-              <td style="color: white;">{{ i.order_no }}</td>
-              <td style="color: white;">{{ i.vendor_date }}</td>
-              <td style="color: white;">{{ i.end_date }}</td>
-              <td style="color: white;">{{ i.vendor_name }}</td>
-              <td style="color: white;">{{ i.vendor_email }}</td> 
-              <td style="color: white;">{{ i.grand_total }}</td>
-            </tr>
-            {% endfor %}
-
-        </tbody>
-      </table> 
-      <div id="total-bill-amount" class="mt-3" style="color: white;"></div>
-      <div>
-          <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
-          <br><br><br><br><br>
-      </div>
-  </div>
-</div>
-</div>
-<div class="printable-content mt-3">
-  
-</div>
-<script>
-  const searchInput = document.getElementById("search");
-  const partyNameDisplay = document.getElementById("party_name");
-  
-  searchInput.addEventListener("input", handleInputChange);
-  
-  function handleInputChange() {
-      const selectedCustomer = this.value;
-      const headingElement = document.getElementById("selected_customer_heading");
-      headingElement.innerHTML = selectedCustomer ? <h2>${selectedCustomer} Balances</h2> : "<h2>Bill Details</h2>";
-  }
-  
-  // Add event listener to the input field for the "input" event
-  searchInput.addEventListener("input", handleInput);
-  
-  // Function to handle input changes
-  function handleInput() {
-      const checkbox = document.getElementById('myCheckbox');
-      const startDateInput = document.getElementById('startDate');
-      const endDateInput = document.getElementById('endDate');
-      // Add an event listener to the checkbox to toggle the date input
-      checkbox.addEventListener('change', function() {
-          if (checkbox.checked) {
-              startDateInput.style.display = 'flex';
-              endDateInput.style.display = 'flex'; // Show the date input
-          } else {
-              startDateInput.style.display = 'none';
-              endDateInput.style.display = 'none' // Hide the date input
-          }
-      });
-  }
-  
-</script>
-<script>
-    var $rows = $('table tbody tr');
-    $('#search').keyup(function() {
-        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-        $rows.hide().filter(function() {
-            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-            return ~text.indexOf(val);
-        }).show();
-        calculateTotalBillAmount();
-    });
-    function calculateTotalBillAmount() {
-      const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
-          .filter(row => row.style.display !== 'none');
-    
-      let totalBillAmount = 0;
-    
-      visibleRows.forEach(row => {
-          const billAmountCell = row.querySelector('td:nth-child(6)');
-          const billAmount = parseFloat(billAmountCell.textContent);
-          if (!isNaN(billAmount)) {
-              totalBillAmount += billAmount;
-          }
-      });
-    
-      const totalBillAmountElement = document.getElementById('total-bill-amount');
-      totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(2)}`;
-    }
-</script>
-<script>
-
-  function exportAsPDF() {
-    const container = document.getElementById('container-to-print');
-  
-    // Save the original background color
-    const originalBackgroundColor = container.style.backgroundColor;
-  
-    // Set the container's background color to white
-    container.style.backgroundColor = 'white';
-  
-    // Apply styling changes to the container's content
-    const textWhiteElements = container.querySelectorAll('.text');
-    textWhiteElements.forEach(element => {
-      element.style.color = 'black'; // Set text color to black
-    });
-    
-    const pdfOptions = {
-      margin: 0,
-      filename: '{{company.company_name}} Bill Details.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    };
-  
-    // Generate PDF from the container
-    html2pdf().from(container).set(pdfOptions).save().then(() => {
-
-      // Restore the original background color
-      container.style.backgroundColor = originalBackgroundColor;
-
-      textWhiteElements.forEach(element => {
-        element.style.color = 'white'; // Restore original text color
-
-      // Remove the pdf-background class after generating the PDF
-      container.classList.remove('pdf-background');
-      });
-    });
-  }
-
- // Function to save Excel using XLSX
- function exportToExcel() {
-     var table = document.querySelector('table');
-     var ws = XLSX.utils.table_to_sheet(table);
-     var wb = XLSX.utils.book_new();
-     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-     XLSX.writeFile(wb, 'report.xlsx');
- }
-
- // Function to handle export based on dropdown selection
- document.getElementById('exportDropdown').addEventListener('change', function () {
-     var selectedValue = this.value;
-     if (selectedValue === 'pdf') {
-         exportToPDF();
-     } else if (selectedValue === 'xls') {
-         exportToExcel();
-     }
- });
- const pdfExportLink = document.getElementById('pdf'); 
-pdfExportLink.addEventListener('click', function (event) {
- event.preventDefault(); 
- exportToPDF();
-});
-
-//-------PRINT
-
-function printPageContent() {
-  const contentToPrint = document.getElementById('container-to-print');
-  const clonedContent = contentToPrint.cloneNode(true);
-
-  const textElements = clonedContent.querySelectorAll('.text');
-  const filterDropdowns = clonedContent.querySelectorAll('.filter-dropdown');
-
-  textElements.forEach(element => {
-    element.style.color = '#000000'; // Text color (black)
-  });
-
-  filterDropdowns.forEach(dropdown => {
-    dropdown.style.display = 'none';
-  });
-
-  const tableElements = clonedContent.querySelectorAll('table');
-  tableElements.forEach(table => {
-    const tableHeaders = table.querySelectorAll('th');
-    tableHeaders.forEach(th => {
-      th.style.color = '#000000';
-    
-    });
-   
-
-    const tableCells = table.querySelectorAll('td, th, tr');
-    tableCells.forEach(cell => {
-      cell.style.border = '1px solid black';
-      cell.style.padding = '10px';
-      cell.style.color = '#000000';
-      
-    });
-    table.style.margin = '0 auto';
-  });
-
-  const printWindow = window.open('', '_blank');
-  printWindow.document.body.appendChild(clonedContent);
-  printWindow.print();
-  printWindow.close();
-}
-
-
-//date
-
-const d1 = document.getElementById('d1');
-const d2 = document.getElementById('d2');
-const dateError = document.getElementById('date-error');
-const dataTable = document.getElementById('data-table');
-const dateRangeDisplay = document.getElementById('date-range-display');
-
-d1.addEventListener('input', filterData);
-d2.addEventListener('input', filterData);
-
-function filterData() {
-  const fromDate = new Date(d1.value);
-  const toDate = new Date(d2.value);
-
-  if (isNaN(toDate)) {
-      dateError.textContent = '';
-  } else if (fromDate > toDate) {
-      dateError.textContent = 'Invalid date range';
+  if (enterRateRadio.checked) {
+    select1Div.style.display = "block";
+    cust.style.display="block"
+    select3Div.style.display = "none"; // Hide select3_div
+    select4Div.style.display = "none"; // Hide select4_div
   } else {
-      dateError.textContent = '';
-      const rows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-
-      for (let i = 0; i < rows.length; i++) {
-          const rowDateText = rows[i].getElementsByTagName('td')[1].textContent;
-          const rowDate = new Date(rowDateText);
-
-          if (!isNaN(rowDate)) {
-              // Compare dates without considering the time component
-              const rowDateWithoutTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate());
-              const fromDateWithoutTime = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-              const toDateWithoutTime = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
-
-              if (rowDateWithoutTime >= fromDateWithoutTime && rowDateWithoutTime <= toDateWithoutTime) {
-                  rows[i].style.display = '';
-              } else {
-                  rows[i].style.display = 'none';
-              }
-    dateRangeDisplay.textContent = ` from ${d1.value} to ${d2.value}`;
-    calculateTotalBillAmount();
+    select1Div.style.display = "none";
   }
 }
-//------------
-function calculateTotalBillAmount() {
-  const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
-      .filter(row => row.style.display !== 'none');
 
-  let totalBillAmount = 0;
-
-  visibleRows.forEach(row => {
-      const billAmountCell = row.querySelector('td:nth-child(6)');
-      const billAmount = parseFloat(billAmountCell.textContent);
-      if (!isNaN(billAmount)) {
-          totalBillAmount += billAmount;
-      }
-  });
-
-  const totalBillAmountElement = document.getElementById('total-bill-amount');
-  totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(2)}`;
-}
- }
-      }
+  // Define a function to show or hide the "select3_div" and "select4_div" elements based on the "markup or markdown" radio button
+  function showSelect3And4Divs() {
+    var select3Div = document.getElementById("select3_div");
+    var select4Div = document.getElementById("select4_div");
+    var select1Div = document.getElementById("select1_div");
+    var cust = document.getElementById("cust");
+    var markupRadio = document.getElementById("tax1");
+    if (markupRadio.checked) {
+      select3Div.style.display = "block";
+      select4Div.style.display = "block";
+      select1Div.style.display="none";
+      cust.style.display="none";
+    } else {
+      select3Div.style.display = "none";
+      select4Div.style.display = "none";
       
-      document.addEventListener("DOMContentLoaded", function() {
-        calculateTotalBillAmount();
-    });
+    }
+  }
+
+  // Call the above functions initially to set the correct display state for each element
+  showSelect1Div();
+  showSelect3And4Divs();
 </script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<section>
+    <div class="fixed-top  " style="top: 7rem; margin-left: 20rem;">
 
 
-{%endblock%}
+        <div class="row  ml-2">
+            <div class="col-md-3 "><a class="text-white" style="font-size: 1.5rem;">New Price List</a></div>
+        </div>
+
+        <div style="height: 600px; overflow-y: scroll;">
+            <form method="POST" action="{% url 'addpl' %}" id="forms">
+                {% csrf_token %}
+                <div class="row mb-4 border-top pt-5">
+                    <div class="col-sm-2"><label for="customer_name" style="margin-left: 10px;">Name*</label></div>
+                    <div class="col-sm-10">
+                        <input type="text" name="name" style="width: 50%; height: 35px;">
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-sm-2"><label for="estimate_number" style="margin-left: 10px;">Type</label></div>
+                    <div class="col-sm-10"><input type="radio" name="transactionType" onclick="updatePrice(this)" class="custom-radio" style="color:rgb(177, 54, 54);" value="sales">&nbsp;&nbsp;<label>Sales</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="radio" name="transactionType" onclick="updatePrice(this)" class="custom-radio" value="purchase" style="color: rgb(255, 255, 255);">&nbsp;&nbsp;<label>Purchase</label>
+                </div>
+                </div>
+                <div class="row mb-4">
+                  <div class="col-sm-2"><label for="estimate_number" style="margin-left: 10px;">Tax preference</label></div>
+                  <div class="col-sm-10"><input type="radio" id="tax1" name="rate" value="mark" class="" style="color: aliceblue;" onclick="showSelect3And4Divs();">&nbsp;&nbsp;<label>Markup or Markdown the item rates by a percentage</label>
+                    
+                  </div>
+                  <div class=" col-sm-10">
+                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                    <input type="radio" id="tax2" name="rate" value="enter"  class="" onclick="showSelect1Div();">&nbsp;&nbsp;<label>Enter the rate individually
+                      for each item</label>
+                  </div><br>
+                <br><br><div class="row mb-4 border-bottom pb-5">
+                    <div class="col-sm-2"><label for="reference" style="margin-left: 10px;">Description</label></div>
+                    &nbsp;<div class="col-sm-4"><textarea name="desc" rows="5" cols="55"></textarea>
+                    </div>
+                    <br><div id="select1_div" class="row mb-4" style="margin-left: 7px; display: none;">
+                      <label class="col-sm-2">Currency</label>
+                      <select name="currency" id="select1" class="col-sm-2" style="width:500px;height:35px;">
+                        <option value="INR">Indain Rupee</option>
+                      </select><br>
+                    </div>
+                    
+                    <div style="display: none;" id="cust">
+                      <h2 style="margin-left: 10px;">Customize Item Rates in Bulk</h2><br><br>
+                      <h5 style="margin-left: 20px;">Add custom rates for each item to be saved as a price list</h5><br>
+                    
+                    
+                      <table class="table table-hover">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">Item details</th>
+                            <th scope="col">Standard Rate(INR)</th>
+                            <th scope="col">Custom Rate(INR)</th>
+                          </tr>
+                        </thead>
+                        <tbody style="color: rgb(20, 20, 20);">
+                          {% for a in add %}
+                          <tr>
+                            <td><input type="text" class="form-control text-black" name='iname[]'  value="{{a.Name}}"></td>
+                            <td><input type="number" class="form-control text-black" name='iprice[]' id="priceInput" value="{{a.p_price}}" ></td>
+                            <td><input type="number" class="form-control text-black" name='custom[]' value="0.0"></td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                
+
+                    <div id="select3_div" class="row mb-4">
+                      <label class="text-white mt-5" style="margin-left: 10px;">
+                        Percentage *
+                      </label>
+                      
+                      <div class="input-group" style="margin-top:-20px;">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div class="input-group-prepend col-sm-2">
+                          <div class="input-group  col-sm-10">
+                            <select name="mark" class="dropdown-toggle"  data-toggle="input-group" style="text-align: center;width: 100%; height: 35px;">
+                              <option>Markup</option>
+                              <option>Markdown</option>
+                            </select>
+                          </div>
+                        </div>
+                        <input type="number" name="per" value="0" style="width:360px;">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text text-white">%</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="select4_div">
+                      <label class="text-white" style="font-size: large; margin-left: 10px;width:200px;">Round Off
+                        To*</label>
+                      <select name="round" style="font-size: large;width:500px;height:35px;">
+                        <option>Never Mind</option>
+                        <option>Nearest Whole Number</option>
+                        <option>0.99</option>
+                        <option>0.50</option>
+                        <option>0.49</option>
+          
+                      </select>
+                    </div>
+                    <br><br><br>
+                  <input type="submit" class="btn text-white" style="background-color: rgb(210, 132, 30); width:300px ; "
+                   value="Save"> 
+                        
+                       </form>
+
+
+
+        </div>
+
+    </div>
+
+
+
+</section>
+<!-- <script>
+  function showAllSelect() {
+    var select1_div = document.getElementById("select1_div");
+    select1_div.style.display = "none";
+    var select1_div = document.getElementById("select3_div");
+    select1_div.style.display = "block";
+    var select1_div = document.getElementById("select4_div");
+    select1_div.style.display = "block";
+  }
+
+  function hideAllSelect() {
+    var select1_div = document.getElementById("select3_div");
+    select1_div.style.display = "none";
+    var select1_div = document.getElementById("select4_div");
+    select1_div.style.display = "none";
+    var select1_div = document.getElementById("select1_div");
+    select1_div.style.display = "block";
+  }
+</script> -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+
+
+    <script>
+      function updatePrice(radio) {
+        // Get the input element
+        var priceInput = document.getElementById("priceInput");
+    
+        // Check the value of the clicked radio button
+        if (radio.value === "sales") {
+          // Set the value for sales
+          priceInput.value = "{{a.s_price}}";
+        } else if (radio.value === "purchase") {
+          // Set the value for purchase
+          priceInput.value = "{{a.p_price}}";
+        }
+      }
+    
+      // Add event listeners to the radio buttons
+      document.getElementById("tax1").addEventListener("click", function () {
+        updatePrice(this);
+      });
+    
+      document.getElementById("tax2").addEventListener("click", function () {
+        updatePrice(this);
+      });
+    </script>
+    
+
+
+
+
+
+{% endblock %}
