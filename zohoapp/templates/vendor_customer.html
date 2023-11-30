@@ -127,7 +127,7 @@ searchInput.addEventListener("input", function () {
       <table class="table table-bordered table-striped mt-4" id="data-table">
         <thead class="text-center">
           <tr>
-              <th class="text text-white">Date</th>
+              <th class="text text-white" hidden>Date</th>
               <th class="text text-white">Name</th>
               <th class="text text-white">Email</th>
               <th class="text text-white">Sub Total</th>
@@ -138,15 +138,33 @@ searchInput.addEventListener("input", function () {
       <tbody>
           {% for i in purchasebill %}
           <tr>
-              <td class="text text-white">{{i.bill_date}}</td>
-              <td class="text text-white">{{i.vendor_name}}1</td>
+              <td class="text text-white" hidden>{{i.bill_date}}</td>
+              <td class="text text-white">{{i.vendor_name}}</td>
               <td class="text text-white">{{i.vendor_email}}</td>
               <td class="text text-white">{{i.sub_total}}</td>
               <td class="text text-white">{{i.total}}</td>
               <td class="text text-white">{{i.balance}}</td>
           </tr>
           {% endfor %}
-          
+          {% for j in recurringbill %}
+          <tr>
+              <td class="text text-white">{{j.vendor_name}}</td>
+              <td class="text text-white">{{j.vendor_email}}</td>
+              <td class="text text-white">{{j.sub_total}}</td>
+              <td class="text text-white">{{j.grand_total}}</td>
+              <td class="text text-white">{{j.balance}}</td>
+          </tr>
+          {% endfor %}
+          {% for k in vendorcredits %}
+          <tr>
+              <td class="text text-white">{{k.vendor_name}}</td>
+              <td class="text text-white">{{k.vendor_email}}</td>
+              <td class="text text-white">{{k.sub_total}}</td>
+              <td class="text text-white">{{k.grand_total}}</td>
+              <td class="text text-white">0</td>
+          </tr>
+          {% endfor %}
+        
           
          
          
@@ -415,7 +433,66 @@ function calculateTotalBillAmount() {
       }
       document.addEventListener("DOMContentLoaded", function() {
         calculateTotalBillAmount();
-    });     
+    });   
+    
+    const tableRows = document.querySelectorAll('#data-table tbody tr');
+
+    const mergedRows = {};
+    
+    tableRows.forEach(row => {
+        const vendorName = row.cells[1].innerText; // Assuming vendor name is in the second cell (index 1)
+        const type = row.cells[0].innerText; // Assuming the type of transaction is in the first cell (index 0)
+    
+        if (!mergedRows[vendorName]) {
+            mergedRows[vendorName] = {
+                subTotal: 0,
+                billTotal: 0,
+                balance: 0,
+                // Add other necessary fields here
+            };
+        }
+    
+        // Update values based on transaction type
+        const subTotal = parseFloat(row.cells[3].innerText);
+        const billTotal = parseFloat(row.cells[4].innerText);
+        const balance = parseFloat(row.cells[5].innerText);
+    
+        if (type === 'purchasebill' || type === 'recurringbill') {
+            mergedRows[vendorName].subTotal += subTotal;
+            mergedRows[vendorName].billTotal += billTotal;
+        } else if (type === 'vendorcredits') {
+            mergedRows[vendorName].subTotal -= subTotal; // Subtract credits
+        }
+    
+        mergedRows[vendorName].balance += balance;
+        // Update other necessary fields similarly
+    
+        row.style.display = 'none';
+    });
+    
+    const newTableBody = document.createElement('tbody');
+    
+    for (const vendorName in mergedRows) {
+        const newRow = document.createElement('tr');
+        const mergedData = mergedRows[vendorName];
+    
+        const nameCell = document.createElement('td');
+        nameCell.textContent = vendorName;
+        newRow.appendChild(nameCell);
+    
+        const subTotalCell = document.createElement('td');
+        subTotalCell.textContent = mergedData.subTotal;
+        newRow.appendChild(subTotalCell);
+    
+        // Add other cells for billTotal, balance, etc., as needed
+    
+        newTableBody.appendChild(newRow);
+    }
+    
+    const existingTableBody = document.querySelector('#data-table tbody');
+    existingTableBody.parentNode.replaceChild(newTableBody, existingTableBody);
+     
+    
 </script>
 
 

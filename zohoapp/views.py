@@ -14994,26 +14994,34 @@ def purchase_unit_dropdown_eway(request):
     
 def vendorbal_customer(request):
     company=company_details.objects.get(user=request.user)
-    vend = vendor_table.objects.filter(user=request.user)
     purchasebill=PurchaseBills.objects.filter(user=request.user)
     recurringbill=recurring_bills.objects.filter(user=request.user)
+    vend = vendor_table.objects.filter(user=request.user)
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
+    pur=PurchaseBills.objects.filter(user=request.user).count()
+    rec=recurring_bills.objects.filter(user=request.user).count()
+    vendo = Vendor_Credits_Bills.objects.filter(user=request.user).count()
+    for bill in recurringbill:
+        vendor_name = bill.vendor_name.split(' ') 
+        vendor_id = vendor_name[0]
+        vendor_name = ' '.join(vendor_name[1:])
 
-    vname=[]
-    for v in vend:
-        vname.append(v.vendor_display_name)
-    print(vname)
-    
-    context={
-            'vend': vend,
-            'company':company,
-            'purchasebill':purchasebill,
-            'recurringbill':recurringbill,
-            'vendorcredits':vendorcredits,
-            'paymentmade': paymentmade
-    }
-    return render(request, 'vendor_customer.html', context)
+        bill.vendor_id = vendor_id
+        bill.vendor_name = vendor_name
+        vendor = vendor_table.objects.filter(id=vendor_id).first()  
+        if vendor:
+            bill.vendor_email = vendor.vendor_email  
+
+    for cred in vendorcredits:
+        vendor_name = cred.vendor_name.split(' ') 
+        vendor_id = vendor_name[2]
+        vendor_name = ' '.join(vendor_name[0:2])
+
+        cred.vendor_id = vendor_id
+        cred.vendor_name = vendor_name
+        print(pur)
+    return render(request, 'vendor_customer.html', {'pur':pur,'rec':rec,'vendo':vendo,'vend': vend, 'company':company,'purchasebill':purchasebill, 'recurringbill':recurringbill,'vendorcredits':vendorcredits,'paymentmade': paymentmade})
 
 def bill_details(request):
     company = company_details.objects.get(user=request.user)
