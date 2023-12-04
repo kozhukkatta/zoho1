@@ -14999,29 +14999,50 @@ def vendorbal_customer(request):
     vend = vendor_table.objects.filter(user=request.user)
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
-    pur=PurchaseBills.objects.filter(user=request.user).count()
-    rec=recurring_bills.objects.filter(user=request.user).count()
-    vendo = Vendor_Credits_Bills.objects.filter(user=request.user).count()
+
+    vemail1=[]
+    for i in purchasebill:
+        vemail1.append(i.vendor_name)
+     
+    vemail2=[]
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
         vendor_id = vendor_name[0]
         vendor_name = ' '.join(vendor_name[1:])
+        vemail2.append(vendor_name)
 
         bill.vendor_id = vendor_id
         bill.vendor_name = vendor_name
         vendor = vendor_table.objects.filter(id=vendor_id).first()  
         if vendor:
             bill.vendor_email = vendor.vendor_email  
-
+    vemail3=[]
     for cred in vendorcredits:
         vendor_name = cred.vendor_name.split(' ') 
         vendor_id = vendor_name[2]
         vendor_name = ' '.join(vendor_name[0:2])
 
         cred.vendor_id = vendor_id
-        cred.vendor_name = vendor_name
-        print(pur)
-    return render(request, 'vendor_customer.html', {'pur':pur,'rec':rec,'vendo':vendo,'vend': vend, 'company':company,'purchasebill':purchasebill, 'recurringbill':recurringbill,'vendorcredits':vendorcredits,'paymentmade': paymentmade})
+        cred.vendor_name = vendor_name 
+        vemail3.append(i.vendor_name)
+
+    vemail4=[]
+    for j in paymentmade:
+        vemail4.append(j.vendor)
+
+    print(vemail1)
+    print(vemail2)
+    print(vemail3)
+    print(vemail4)
+
+    context={'vend': vend, 
+            'company':company,
+            'purchasebill':purchasebill,
+            'recurringbill':recurringbill,
+            'vendorcredits':vendorcredits,
+            'paymentmade': paymentmade}
+    
+    return render(request, 'vendor_customer.html', context)
 
 def bill_details(request):
     company = company_details.objects.get(user=request.user)
