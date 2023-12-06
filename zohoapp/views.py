@@ -15000,18 +15000,49 @@ def vendorbal_customer(request):
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
 
-    vname1=[]
+    data=[]
+    purchase_vendor=set()
     for i in purchasebill:
-        vname1.append(i.vendor_name)
-   
+        if i.vendor_name not in purchase_vendor:
+            total_table1 = PurchaseBills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_psum=Sum('total'), subtotal_sum=Sum('sub_total'))
+            purchase_vendor.add(i.vendor_name)
+            data.append({'vendor_name': i.vendor_name,'total_sum':total_table1['total_psum'],'sub_total':total_table1['subtotal_sum'],'bill_type': 'purchase_bill'})
+            #print(total_table1,i.vendor_name,'purchase_bill')
+
+    recurring_vendor=set()
+    for i in recurringbill:
+        if i.vendor_name not in recurring_vendor:
+            vendor_name = i.vendor_name.split(' ') 
+            vendor_id = vendor_name[0]
+            vendor_name = ' '.join(vendor_name[1:])
+            total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
+            recurring_vendor.add(i.vendor_name)
+            data.append({'vendor_name': vendor_name,'total_sum':total_table2['total_rsum'],'sub_total':total_table2['subtotal_sum'],'bill_type': 'recurring_bill'})
+            #print(total_table2,vendor_name,'recurring_bills')
+
+    vendor_credit_vendor=set()
+    for i in vendorcredits:
+        if i.vendor_name not in vendor_credit_vendor:
+            vendor_name = i.vendor_name.split(' ') 
+            vendor_id = vendor_name[2]
+            vendor_name = ' '.join(vendor_name[0:2])
+            total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
+            vendor_credit_vendor.add(i.vendor_name)
+            data.append({'vendor_name': vendor_name,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit'})
+            #print(total_table3,vendor_name,'vendor_credit')
+
+    #data=[total_table1,total_table2,total_table3]
+
+    #print(data)
     
+
     vname2=[]
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
         vendor_id = vendor_name[0]
         vendor_name = ' '.join(vendor_name[1:])
         vname2.append(vendor_name)
-
+        
         bill.vendor_id = vendor_id
         bill.vendor_name = vendor_name
         vendor = vendor_table.objects.filter(id=vendor_id).first()  
@@ -15031,11 +15062,11 @@ def vendorbal_customer(request):
     # vname4=[]
     # for j in paymentmade:
     #     vname4.append(j.vendor)
+    # name= list(set(vname1) | set(vname2) | set(vname3))
+    
+    #print(name)
 
     
-    print(name)
-
-    name= list(set(vname1) | set(vname2) | set(vname3))
     context={'vend': vend, 
             'company':company,
             'purchasebill':purchasebill,

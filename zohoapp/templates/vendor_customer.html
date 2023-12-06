@@ -139,7 +139,7 @@ searchInput.addEventListener("input", function () {
           {% for i in purchasebill %}
           <tr>
               <td class="text text-white" hidden>{{i.bill_date}}</td>
-              <td class="text text-white">{{i.vendor_name}}</td>
+              <td class="text text-white">{{i.vendor_name}}1</td>
               <td class="text text-white">{{i.vendor_email}}</td>
               <td class="text text-white">{{i.sub_total}}</td>
               <td class="text text-white">{{i.total}}</td>
@@ -148,8 +148,8 @@ searchInput.addEventListener("input", function () {
           {% endfor %}
           {% for j in recurringbill %}
           <tr>
-              <td class="text text-white">{{j.vendor_name}}</td>
-              <td class="text text-white">{{j.vendor_email}}1</td>
+              <td class="text text-white">{{j.vendor_name}}2</td>
+              <td class="text text-white">{{j.vendor_email}}</td>
               <td class="text text-white">{{j.sub_total}}</td>
               <td class="text text-white">{{j.grand_total}}</td>
               <td class="text text-white">{{j.balance}}</td>
@@ -157,7 +157,7 @@ searchInput.addEventListener("input", function () {
           {% endfor %}
           {% for k in vendorcredits %}
           <tr>
-              <td class="text text-white">{{k.vendor_name}}</td>
+              <td class="text text-white">{{k.vendor_name}}3</td>
               <td class="text text-white">{{k.vendor_email}}</td>
               <td class="text text-white">{{k.sub_total}}</td>
               <td class="text text-white">{{k.grand_total}}</td>
