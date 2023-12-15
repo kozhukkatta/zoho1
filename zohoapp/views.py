@@ -15034,7 +15034,36 @@ def vendorbal_customer(request):
     #data=[total_table1,total_table2,total_table3]
 
     #print(data)
+    vendor_totals = {}
+    for payment in paymentmade:
+        vendor_name = payment.vendor.first_name + " " + payment.vendor.last_name
+        payment_amount = payment.current_balance
+        print(vendor_name)
+        if vendor_name not in vendor_totals:
+            vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0, 'current_balance': 0.0}
+
+        vendor_totals[vendor_name]['current_balance'] += payment_amount
+
+    # Combine data from both sources
+    combined_data = []
+    for entry in data:
+        vendor_name = entry['vendor_name']
+        total_sum = entry['total_sum']
+        sub_total = entry['sub_total']
+
+        if vendor_name in vendor_totals:
+            current_balance = vendor_totals[vendor_name]['current_balance']
+        else:
+            current_balance = 0.0
+
+        combined_data.append({
+            'vendor_name': vendor_name,
+            'total_sum': total_sum,
+            'sub_total': sub_total,
+            'current_balance': current_balance
+        })
     
+    print(combined_data)
 
     vname2=[]
     for bill in recurringbill:
@@ -15065,8 +15094,31 @@ def vendorbal_customer(request):
     # name= list(set(vname1) | set(vname2) | set(vname3))
     
     #print(name)
+    # vendor_totals = {}
 
+    # for entry in data:
+    #     vendor_name = entry['vendor_name']
+    #     total_sum = entry['total_sum']
+    #     sub_total = entry['sub_total']
+
+    #     if vendor_name not in vendor_totals:
+    #         vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0}
+
+    #     vendor_totals[vendor_name]['total_sum'] += total_sum
+    #     vendor_totals[vendor_name]['sub_total'] += sub_total
+
+    # # Display the results
+    # for vendor, totals in vendor_totals.items():
+    #     print(f"Vendor: {vendor}, Total Sum: {totals['total_sum']}, Sub Total: {totals['sub_total']}")
     
+    user_totals = {}
+    for entry in combined_data:
+        user_totals[entry['vendor_name']] = {
+            'total_sum': user_totals.get(entry['vendor_name'], {}).get('total_sum', 0) + entry['total_sum'],
+            'sub_total': user_totals.get(entry['vendor_name'], {}).get('sub_total', 0) + entry['sub_total'],
+            'current_balance': user_totals.get(entry['vendor_name'], {}).get('current_balance', 0) + entry['current_balance']
+        }
+    print(user_totals)   
     context={'vend': vend, 
             'company':company,
             'purchasebill':purchasebill,

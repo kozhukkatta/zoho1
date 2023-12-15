@@ -353,7 +353,7 @@
             var $customers = customerTable.find("tbody tr");
             switch (sortOption) {
                 case "customer-az":
-                    $customers.sort(function (a, b) {
+                    $customers.sort(function (a, b) { 
                         var textA = $(a).find("td:eq(0)").text().toLowerCase();
                         var textB = $(b).find("td:eq(0)").text().toLowerCase();
                         return textA.localeCompare(textB);
