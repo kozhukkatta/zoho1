@@ -965,7 +965,9 @@ urlpatterns = [
     path('get_cust_pos',views.get_cust_pos,name='get_cust_pos'),
     
     path('customer_dropdown_estimate',views.customer_dropdown_estimate,name='customer_dropdown_estimate'),
-    
+
+    path('sharePricelistToEmail',views.sharePricelistToEmail,name='sharePricelistToEmail'),
+
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     
     

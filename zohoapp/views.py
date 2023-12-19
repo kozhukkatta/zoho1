@@ -15155,6 +15155,42 @@ def bill_details(request):
 
     return render(request,'bill_details.html',{'vend': vend,'company': company,'purchasebill': purchasebill,'recurringbill': recurringbill,'vendorcredits': vendorcredits})
 
+def sharePricelistToEmail(request,id):
+    if request.user:
+        try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+
+                cmp = company_details.objects.get( user = request.user.id)
+                bill = Pricelist.objects.get(id = id)
+                items = AddItem.objects.filter( sale = bill.id)
+                        
+                context = {'bill': bill, 'cmp': cmp,'items':items}
+                template_path = 'item_pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)#, link_callback=fetch_resources)
+                pdf = result.getvalue()
+                filename = f'Sales Bill - {bill.sales_no}.pdf'
+                subject = f"SALES BILL - {bill.sales_no}"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Items  - Bill-{bill.hsn}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER,to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Bill has been shared via email successfully..!')
+                return redirect(detail,id)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(detail, id)
+        
 def vendor_customize_report(request):
     company_data = company_details.objects.get(user=request.user)
     purchasebill=PurchaseBills.objects.all()
