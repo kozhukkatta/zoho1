@@ -15155,6 +15155,9 @@ def bill_details(request):
 
     return render(request,'bill_details.html',{'vend': vend,'company': company,'purchasebill': purchasebill,'recurringbill': recurringbill,'vendorcredits': vendorcredits})
 
+def datesel(request):
+    print("date")
+
 def sharePricelistToEmail(request,id):
     if request.user:
         try:

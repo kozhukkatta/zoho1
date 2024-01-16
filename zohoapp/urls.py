@@ -661,6 +661,7 @@ urlpatterns = [
     path('bill_details',views.bill_details,name='bill_details'),
     path('vendor_customize_report',views.vendor_customize_report,name='vendor_customize_report'),
     path('bill_customize_report',views.bill_customize_report,name='bill_customize_report'),
+    path('datesel',views.datesel,name='datesel'),
     
     path('daybook',views.daybook,name='daybook'),
     path('creditnote_details',views.creditnote_details,name='creditnote_details'),
