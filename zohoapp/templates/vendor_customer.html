@@ -45,13 +45,12 @@
 <div class="d-flex justify-content-between align-items-center" style="margin-top: 40px;">
   <div class="d-flex">
       <div class="col">
-          <form action="{% url "datesel" %}" id="date-form" method="post">
-              {% csrf_token %}
+          {% comment %} <form action="" id="date-form" method="post"> {% endcomment %}
               From <input type="date" id="d1" name="d1" required>
               To <input type="date" id="d2" name="d2" required>
               <input type="submit" id="submitButton" name="submitButton">
               <span id="date-error" style="color: red;"></span>
-          </form>
+          {% comment %} </form> {% endcomment %}
       </div>
   </div>
   
@@ -140,30 +139,30 @@ searchInput.addEventListener("input", function () {
           {% for i in purchasebill %}
           <tr>
               <td class="text text-white">{{i.bill_date}}</td>
-              <td class="text text-white">{{i.vendor_name}}1</td>
-              <td class="text text-white">{{i.vendor_email}}</td>
-              <td class="text text-white">{{i.sub_total}}</td>
-              <td class="text text-white">{{i.total}}</td>
-              <td class="text text-white">{{i.balance}}</td>
+              <td class="text text-white vendor_name">{{i.vendor_name}}</td>
+              <td class="text text-white vendor_email">{{i.vendor_email}}</td>
+              <td class="text text-white sub_total">{{i.sub_total}}</td>
+              <td class="text text-white total">{{i.total}}</td>
+              <td class="text text-white">0</td>
           </tr>
           {% endfor %}
           {% for j in recurringbill %}
           <tr>
-              <td class="text text-white">{{j.start_date}}2</td>
-              <td class="text text-white">{{j.vendor_name}}2</td>
-              <td class="text text-white">{{j.vendor_email}}</td>
-              <td class="text text-white">{{j.sub_total}}</td>
-              <td class="text text-white">{{j.grand_total}}</td>
-              <td class="text text-white">{{j.balance}}</td>
+              <td class="text text-white">{{j.start_date}}</td>
+              <td class="text text-white vendor_name">{{j.vendor_name}}</td>
+              <td class="text text-white vendor_email">{{j.vendor_email}}</td>
+              <td class="text text-white sub_total">{{j.sub_total}}</td>
+              <td class="text text-white total">{{j.grand_total}}</td>
+              <td class="text text-white">0</td>
           </tr>
           {% endfor %}
           {% for k in vendorcredits %}
           <tr>
-              <td class="text text-white">{{k.vendor_date}}2</td>
-              <td class="text text-white">{{k.vendor_name}}3</td>
-              <td class="text text-white">{{k.vendor_email}}</td>
-              <td class="text text-white">{{k.sub_total}}</td>
-              <td class="text text-white">{{k.grand_total}}</td>
+              <td class="text text-white">{{k.vendor_date}}</td>
+              <td class="text text-white vendor_name">{{k.vendor_name}}</td>
+              <td class="text text-white vendor_email">{{k.vendor_email}}</td>
+              <td class="text text-white sub_total ">{{k.sub_total}}</td>
+              <td class="text text-white total">{{k.grand_total}}</td>
               <td class="text text-white">0</td>
           </tr>
           {% endfor %} 
@@ -172,6 +171,49 @@ searchInput.addEventListener("input", function () {
          
       </tbody>
       </table> 
+      <script>
+
+        function combineRows() {
+          console.log("hello")
+            const rows = document.querySelectorAll('#data-table tbody tr');
+            const userMap = {};
+
+            rows.forEach(row => {
+                const username = row.querySelector('td:nth-child(2)').textContent;
+                const email = row.querySelector('td:nth-child(3)').textContent;
+                const balance = parseFloat(row.querySelector('.sub_total').textContent);
+                const subtotal = parseFloat(row.querySelector('.total').textContent);
+                //const gst = parseFloat(row.querySelector('.gst').textContent);
+
+                if (userMap[username]) {
+                    userMap[username].balance += balance;
+                    userMap[username].subtotal += subtotal;
+                    userMap[username].email = email;
+                } else {
+                    userMap[username] = { balance, subtotal };
+                }
+                
+            });
+            console.log(userMap)
+            const tbody = document.querySelector('#data-table tbody');
+            tbody.innerHTML = '';
+
+            Object.keys(userMap).forEach(username => {
+                const userData = userMap[username];
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                <td class="text text-white vendor_name">${username}</td>
+                <td class="text text-white vendor_email">${userData.email}</td>
+                <td class="text text-white sub_total">${userData.balance}</td>
+                <td class="text text-white total">${userData.subtotal}</td>
+            `;
+                tbody.appendChild(newRow);
+            });
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+          combineRows()
+        })
+      </script>
       <div id="total-bill-amount" class="mt-3" class="text text-white" style="margin-left:55vw;"></div>
       <div>
           <div id="noDataMessage" style="display: none;" >No data found for selected dates.</div>	
@@ -438,24 +480,20 @@ function calculateTotalBillAmount() {
     });   
     
     $(document).ready(function(){
-      $("#submitButton").click(function(){
-          var from = $("#d1").val();
-          var to = $("#d2").val();
-  
-          $.ajax({
-              url: "/datesel/",  // Replace with the URL of your Django view
-              type: "POST",
-              data: { 'd1': from,'d2':to },
-              success: function(response){
-                  //$("#result").html(response);
-                  console.log(response)
-              },
-              error: function(error){
-                  console.log(error);
-              }
-          });
-      });
-  });
+      function getCookie(c_name) {
+        if(document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if(c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if(c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    
    
 </script>
 

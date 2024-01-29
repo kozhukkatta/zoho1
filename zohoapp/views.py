@@ -44,7 +44,7 @@ from django.template import loader
 from .models import customer  # Import your Customer model
 from django.db.models import Max
 
-
+from django.views.decorators.csrf import csrf_exempt
 def index(request):
 
     return render(request,'landpage.html')
@@ -15127,7 +15127,7 @@ def vendorbal_customer(request):
             'paymentmade': paymentmade}
     
     return render(request, 'vendor_customer.html', context)
-
+@csrf_exempt
 def datesel(request):
     if request.method == 'POST':
         from_date=request.POST['d1']
@@ -15269,8 +15269,8 @@ def datesel(request):
                 'vendorcredits':vendorcredits,
                 'paymentmade': paymentmade}
         
-        return render(request, 'vendor_customer.html', context)
-    return JsonResponse({"options":"date"})
+        # return render(request, 'vendor_customer.html', context)
+        return JsonResponse({"options":"date"})
 
 def bill_details(request):
     company = company_details.objects.get(user=request.user)
