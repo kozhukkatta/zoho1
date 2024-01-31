@@ -48,7 +48,7 @@
           {% comment %} <form action="" id="date-form" method="post"> {% endcomment %}
               From <input type="date" id="d1" name="d1" required>
               To <input type="date" id="d2" name="d2" required>
-              <input type="submit" id="submitButton" name="submitButton">
+              <input type="submit" id="submitButton" name="submitButton" onclick="submitDate()">
               <span id="date-error" style="color: red;"></span>
           {% comment %} </form> {% endcomment %}
       </div>
@@ -135,10 +135,9 @@ searchInput.addEventListener("input", function () {
               <th class="text text-white">Balance</th>
           </tr>
       </thead>
-      <tbody>
+      <tbody id="dataTableBody">
           {% for i in purchasebill %}
           <tr>
-              <td class="text text-white">{{i.bill_date}}</td>
               <td class="text text-white vendor_name">{{i.vendor_name}}</td>
               <td class="text text-white vendor_email">{{i.vendor_email}}</td>
               <td class="text text-white sub_total">{{i.sub_total}}</td>
@@ -148,7 +147,6 @@ searchInput.addEventListener("input", function () {
           {% endfor %}
           {% for j in recurringbill %}
           <tr>
-              <td class="text text-white">{{j.start_date}}</td>
               <td class="text text-white vendor_name">{{j.vendor_name}}</td>
               <td class="text text-white vendor_email">{{j.vendor_email}}</td>
               <td class="text text-white sub_total">{{j.sub_total}}</td>
@@ -158,7 +156,6 @@ searchInput.addEventListener("input", function () {
           {% endfor %}
           {% for k in vendorcredits %}
           <tr>
-              <td class="text text-white">{{k.vendor_date}}</td>
               <td class="text text-white vendor_name">{{k.vendor_name}}</td>
               <td class="text text-white vendor_email">{{k.vendor_email}}</td>
               <td class="text text-white sub_total ">{{k.sub_total}}</td>
@@ -179,18 +176,19 @@ searchInput.addEventListener("input", function () {
             const userMap = {};
 
             rows.forEach(row => {
-                const username = row.querySelector('td:nth-child(2)').textContent;
-                const email = row.querySelector('td:nth-child(3)').textContent;
+                const username = row.querySelector('td:nth-child(1)').textContent;
+                const email = row.querySelector('td:nth-child(2)').textContent;
                 const balance = parseFloat(row.querySelector('.sub_total').textContent);
                 const subtotal = parseFloat(row.querySelector('.total').textContent);
                 //const gst = parseFloat(row.querySelector('.gst').textContent);
+
 
                 if (userMap[username]) {
                     userMap[username].balance += balance;
                     userMap[username].subtotal += subtotal;
                     userMap[username].email = email;
                 } else {
-                    userMap[username] = { balance, subtotal };
+                    userMap[username] = { balance, subtotal, email};
                 }
                 
             });
@@ -451,6 +449,7 @@ function filterData() {
                   rows[i].style.display = 'none';
               }
     dateRangeDisplay.textContent = ` from ${d1.value} to ${d2.value}`;
+    combineRows();
     calculateTotalBillAmount();
   }
 }
@@ -479,21 +478,54 @@ function calculateTotalBillAmount() {
         calculateTotalBillAmount();
     });   
     
-    $(document).ready(function(){
-      function getCookie(c_name) {
-        if(document.cookie.length > 0) {
-            c_start = document.cookie.indexOf(c_name + "=");
-            if(c_start != -1) {
-                c_start = c_start + c_name.length + 1;
-                c_end = document.cookie.indexOf(";", c_start);
-                if(c_end == -1) c_end = document.cookie.length;
-                return unescape(document.cookie.substring(c_start,c_end));
-            }
-        }
-        return "";
-    }
+   
 
-    
+   // $(document).ready(function(){
+   function submitDate(){
+        var d1 = $("#d1").val();
+        var d2 = $("#d2").val();
+        
+        console.log('response')
+
+        $.ajax({
+            url: "/datesel",  // Replace with the URL of your Django view
+            type: "POST",
+            data: { 'd1': d1 , 'd2':d2},
+            success: function(response){
+                //$("#result").html(response);
+                console.log(response)
+                displayDataInTable(response)
+            },
+            error: function(error){
+                console.log(error);
+            }
+        });
+    };
+//})
+function displayDataInTable(data) {
+  var tbody = document.getElementById('dataTableBody');
+
+  // Clear existing rows
+  tbody.innerHTML = "";
+
+  // Iterate through data and append rows to the table
+  data.options.forEach(function(option) {
+      var row = tbody.insertRow();
+
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+      //var cell5 = row.insertCell(4);
+
+      cell1.textContent = option.vendor_name;
+      cell2.textContent = option.email;
+      cell3.textContent = option.total_sum;
+      cell4.textContent = option.sub_total;
+      //cell5.textContent = option.bill_type;
+  });
+  combineRows()
+}
    
 </script>
 
