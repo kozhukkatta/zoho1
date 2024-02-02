@@ -15000,71 +15000,6 @@ def vendorbal_customer(request):
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
 
-    data=[]
-    purchase_vendor=set()
-    for i in purchasebill:
-        if i.vendor_name not in purchase_vendor:
-            total_table1 = PurchaseBills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_psum=Sum('total'), subtotal_sum=Sum('sub_total'))
-            purchase_vendor.add(i.vendor_name)
-            data.append({'vendor_name': i.vendor_name,'total_sum':total_table1['total_psum'],'sub_total':total_table1['subtotal_sum'],'bill_type': 'purchase_bill'})
-            #print(total_table1,i.vendor_name,'purchase_bill')
-
-    recurring_vendor=set()
-    for i in recurringbill:
-        if i.vendor_name not in recurring_vendor:
-            vendor_name = i.vendor_name.split(' ') 
-            vendor_id = vendor_name[0]
-            vendor_name = ' '.join(vendor_name[1:])
-            total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
-            recurring_vendor.add(i.vendor_name)
-            data.append({'vendor_name': vendor_name,'total_sum':total_table2['total_rsum'],'sub_total':total_table2['subtotal_sum'],'bill_type': 'recurring_bill'})
-            #print(total_table2,vendor_name,'recurring_bills')
-
-    vendor_credit_vendor=set()
-    for i in vendorcredits:
-        if i.vendor_name not in vendor_credit_vendor:
-            vendor_name = i.vendor_name.split(' ') 
-            vendor_id = vendor_name[2]
-            vendor_name = ' '.join(vendor_name[0:2])
-            total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
-            vendor_credit_vendor.add(i.vendor_name)
-            data.append({'vendor_name': vendor_name,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit'})
-            #print(total_table3,vendor_name,'vendor_credit')
-
-    #data=[total_table1,total_table2,total_table3]
-
-    #print(data)
-    vendor_totals = {}
-    for payment in paymentmade:
-        vendor_name = payment.vendor.first_name + " " + payment.vendor.last_name
-        payment_amount = payment.current_balance
-        print(vendor_name)
-        if vendor_name not in vendor_totals:
-            vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0, 'current_balance': 0.0}
-
-        vendor_totals[vendor_name]['current_balance'] += payment_amount
-
-    # Combine data from both sources
-    combined_data = []
-    for entry in data:
-        vendor_name = entry['vendor_name']
-        total_sum = entry['total_sum']
-        sub_total = entry['sub_total']
-
-        if vendor_name in vendor_totals:
-            current_balance = vendor_totals[vendor_name]['current_balance']
-        else:
-            current_balance = 0.0
-
-        combined_data.append({
-            'vendor_name': vendor_name,
-            'total_sum': total_sum,
-            'sub_total': sub_total,
-            'current_balance': current_balance
-        })
-    
-    print(combined_data)
-
     vname2=[]
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
@@ -15086,39 +15021,8 @@ def vendorbal_customer(request):
         vname3.append(vendor_name)
 
         cred.vendor_id = vendor_id
-        cred.vendor_name = vendor_name 
-
-    # vname4=[]
-    # for j in paymentmade:
-    #     vname4.append(j.vendor)
-    # name= list(set(vname1) | set(vname2) | set(vname3))
-    
-    #print(name)
-    # vendor_totals = {}
-
-    # for entry in data:
-    #     vendor_name = entry['vendor_name']
-    #     total_sum = entry['total_sum']
-    #     sub_total = entry['sub_total']
-
-    #     if vendor_name not in vendor_totals:
-    #         vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0}
-
-    #     vendor_totals[vendor_name]['total_sum'] += total_sum
-    #     vendor_totals[vendor_name]['sub_total'] += sub_total
-
-    # # Display the results
-    # for vendor, totals in vendor_totals.items():
-    #     print(f"Vendor: {vendor}, Total Sum: {totals['total_sum']}, Sub Total: {totals['sub_total']}")
-    
-    user_totals = {}
-    for entry in combined_data:
-        user_totals[entry['vendor_name']] = {
-            'total_sum': user_totals.get(entry['vendor_name'], {}).get('total_sum', 0) + entry['total_sum'],
-            'sub_total': user_totals.get(entry['vendor_name'], {}).get('sub_total', 0) + entry['sub_total'],
-            'current_balance': user_totals.get(entry['vendor_name'], {}).get('current_balance', 0) + entry['current_balance']
-        }
-    print(user_totals)   
+        cred.vendor_name = vendor_name  
+   
     context={'vend': vend, 
             'company':company,
             'purchasebill':purchasebill,
@@ -15178,37 +15082,6 @@ def datesel(request):
 
         #data=[total_table1,total_table2,total_table3]
 
-        #print(data)
-        vendor_totals = {}
-        for payment in paymentmade:
-            vendor_name = payment.vendor.first_name + " " + payment.vendor.last_name
-            payment_amount = payment.current_balance
-            print(vendor_name)
-            if vendor_name not in vendor_totals:
-                vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0, 'current_balance': 0.0}
-
-            vendor_totals[vendor_name]['current_balance'] += payment_amount
-
-        # Combine data from both sources
-        combined_data = []
-        for entry in data:
-            vendor_name = entry['vendor_name']
-            total_sum = entry['total_sum']
-            sub_total = entry['sub_total']
-
-            if vendor_name in vendor_totals:
-                current_balance = vendor_totals[vendor_name]['current_balance']
-            else:
-                current_balance = 0.0
-
-            combined_data.append({
-                'vendor_name': vendor_name,
-                'total_sum': total_sum,
-                'sub_total': sub_total,
-                'current_balance': current_balance
-            })
-        
-        print(combined_data)
 
         vname2=[]
         for bill in recurringbill:
@@ -15233,37 +15106,8 @@ def datesel(request):
             cred.vendor_id = vendor_id
             cred.vendor_name = vendor_name 
 
-        # vname4=[]
-        # for j in paymentmade:
-        #     vname4.append(j.vendor)
-        # name= list(set(vname1) | set(vname2) | set(vname3))
-        
-        #print(name)
-        # vendor_totals = {}
-
-        # for entry in data:
-        #     vendor_name = entry['vendor_name']
-        #     total_sum = entry['total_sum']
-        #     sub_total = entry['sub_total']
-
-        #     if vendor_name not in vendor_totals:
-        #         vendor_totals[vendor_name] = {'total_sum': 0.0, 'sub_total': 0.0}
-
-        #     vendor_totals[vendor_name]['total_sum'] += total_sum
-        #     vendor_totals[vendor_name]['sub_total'] += sub_total
-
-        # # Display the results
-        # for vendor, totals in vendor_totals.items():
-        #     print(f"Vendor: {vendor}, Total Sum: {totals['total_sum']}, Sub Total: {totals['sub_total']}")
-        
-        user_totals = {}
-        for entry in combined_data:
-            user_totals[entry['vendor_name']] = {
-                'total_sum': user_totals.get(entry['vendor_name'], {}).get('total_sum', 0) + entry['total_sum'],
-                'sub_total': user_totals.get(entry['vendor_name'], {}).get('sub_total', 0) + entry['sub_total'],
-                'current_balance': user_totals.get(entry['vendor_name'], {}).get('current_balance', 0) + entry['current_balance']
-            }
-        print(user_totals)   
+      
+       
         context={'vend': vend, 
                 'company':company,
                 'purchasebill':purchasebill,
