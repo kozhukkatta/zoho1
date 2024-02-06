@@ -15000,6 +15000,13 @@ def vendorbal_customer(request):
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
 
+    vname1=[]
+    for p in purchasebill:
+        vendor = vendor_table.objects.filter(vendor_email=p.vendor_email)
+        for i in vendor:
+            print(i.id)
+            p.vendor_id=i.id
+
     vname2=[]
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
@@ -15022,7 +15029,9 @@ def vendorbal_customer(request):
 
         cred.vendor_id = vendor_id
         cred.vendor_name = vendor_name  
-   
+
+    print(vname2)
+    print(vname3)
     context={'vend': vend, 
             'company':company,
             'purchasebill':purchasebill,
