@@ -42,8 +42,8 @@ import calendar
 from calendar import HTMLCalendar
 from django.template import loader
 from .models import customer  # Import your Customer model
-from django.db.models import Max
-
+###########
+from django.db.models import Max,F
 from django.views.decorators.csrf import csrf_exempt
 def index(request):
 
@@ -15000,46 +15000,82 @@ def vendorbal_customer(request):
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
 
+    v_ids = set()
+
     vname1=[]
     for p in purchasebill:
         vendor = vendor_table.objects.filter(vendor_email=p.vendor_email)
         for i in vendor:
             print(i.id)
             p.vendor_id=i.id
+            v_ids.add(p.vendor_id)
+            #print(v_ids,"p")
 
     vname2=[]
     for bill in recurringbill:
         vendor_name = bill.vendor_name.split(' ') 
-        vendor_id = vendor_name[0]
+        vendor_id = int(vendor_name[0])
         vendor_name = ' '.join(vendor_name[1:])
         vname2.append(vendor_name)
         
         bill.vendor_id = vendor_id
         bill.vendor_name = vendor_name
-        vendor = vendor_table.objects.filter(id=vendor_id).first()  
+        vend = vendor_table.objects.filter(id=vendor_id)
         if vendor:
-            bill.vendor_email = vendor.vendor_email  
+            bill.vendor_email = vend.vendor_email  
+            v_ids.add(vendor_id)
+            #print(v_ids,"r")
+
 
     vname3=[]
     for cred in vendorcredits:
         vendor_name = cred.vendor_name.split(' ') 
-        vendor_id = vendor_name[2]
+        vendor_id = int(vendor_name[2])
         vendor_name = ' '.join(vendor_name[0:2])
         vname3.append(vendor_name)
 
         cred.vendor_id = vendor_id
         cred.vendor_name = vendor_name  
+        v_ids.add(vendor_id)
+        #print(v_ids,"v")
 
-    print(vname2)
-    print(vname3)
+
+    v_ids_list = list(v_ids)
+    print(v_ids_list,"hsd")
+
+    current_balances = (
+        paymentmade
+        .filter(vendor_id__in=v_ids_list)
+        .values('vendor_id')
+        .annotate(latest_date=Max('date'))
+        .values('vendor_id', 'current_balance')
+        .order_by('latest_date')
+    )
+
+    # Use a dictionary to store the latest balance for each vendor
+    latest_balances = {}
+    for entry in current_balances:
+        vendor_id = entry['vendor_id']
+        latest_balances[vendor_id] = entry
+
+    # Convert the dictionary values back to a list
+    latest_balances_list = list(latest_balances.values())
+
+    #print(current_balances)
+    print(latest_balances_list)
+
+    #print(vname2)
+    #print(vname3)
     context={'vend': vend, 
             'company':company,
             'purchasebill':purchasebill,
             'recurringbill':recurringbill,
             'vendorcredits':vendorcredits,
-            'paymentmade': paymentmade}
+            'paymentmade': paymentmade,
+            'current_balances':latest_balances_list}
     
     return render(request, 'vendor_customer.html', context)
+
 @csrf_exempt
 def datesel(request):
     if request.method == 'POST':
