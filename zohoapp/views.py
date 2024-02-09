@@ -15020,9 +15020,9 @@ def vendorbal_customer(request):
         
         bill.vendor_id = vendor_id
         bill.vendor_name = vendor_name
-        vend = vendor_table.objects.filter(id=vendor_id)
-        if vendor:
-            bill.vendor_email = vend.vendor_email  
+        ven = vendor_table.objects.filter(id=vendor_id)
+        if vend:
+            bill.vendor_email = ven[0].vendor_email  # Assuming vendor_email is a field in the vendor_table
             v_ids.add(vendor_id)
             #print(v_ids,"r")
 

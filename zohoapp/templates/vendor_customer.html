@@ -37,6 +37,11 @@
       color: #000;
   }
 
+  .pdf-export .text,
+  .pdf-export table th,
+  .pdf-export table td {
+    color: black !important;
+}
  
 </style>
 
@@ -116,7 +121,7 @@ searchInput.addEventListener("input", function () {
               Add Company</h2>
               </div>
               {% endif %}
-              <div >
+              <div>
                   <a class="text-white" id="selected_customer_heading"><h2>Vendor Balances</h2></a>
               </div>
               <p class="text-white" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
@@ -127,11 +132,11 @@ searchInput.addEventListener("input", function () {
       <table class="table table-bordered table-striped mt-4" id="data-table">
         <thead class="text-center">
           <tr>
-              <th class="text text-white">Name</th>
-              <th class="text text-white">Email</th>
-              <th class="text text-white">Sub Total</th>
-              <th class="text text-white">Bill Total</th>
-              <th class="text text-white">Current Balance</th>
+              <th class="text" style="color:white">Name</th>
+              <th class="text" style="color:white">Email</th>
+              <th class="text" style="color:white">Sub Total</th>
+              <th class="text" style="color:white">Bill Total</th>
+              <th class="text" style="color:white">Current Balance</th>
           </tr>
       </thead>
       <tbody id="dataTableBody">
@@ -141,13 +146,14 @@ searchInput.addEventListener("input", function () {
               <td class="text text-white vendor_email">{{i.vendor_email}}</td>
               <td class="text text-white sub_total">{{i.sub_total}}</td>
               <td class="text text-white total">{{i.total}}</td>
-              <td class="text text-white">
+              <td class="text text-white balance">
                 {% for balance in current_balances %}
                     {% if balance.vendor_id == i.vendor_id %}
                         {{ balance.current_balance }}
                     {% endif %}
                 {% endfor %}
             </td>
+            <td class="bill_type1">purchasebill</td>
           </tr>
           {% endfor %}
           {% for j in recurringbill %}
@@ -156,13 +162,14 @@ searchInput.addEventListener("input", function () {
               <td class="text text-white vendor_email">{{j.vendor_email}}</td>
               <td class="text text-white sub_total">{{j.sub_total}}</td>
               <td class="text text-white total">{{j.grand_total}}</td>
-              <td class="text text-white">
+              <td class="text text-white balance">
                 {% for balance in current_balances %}
                     {% if balance.vendor_id == j.vendor_id %}
                         {{ balance.current_balance }}
                     {% endif %}
                 {% endfor %}
             </td>
+            <td class="bill_type2">recurringbill</td>
           </tr>
           {% endfor %}
           {% for k in vendorcredits %}
@@ -171,13 +178,14 @@ searchInput.addEventListener("input", function () {
               <td class="text text-white vendor_email">{{k.vendor_email}}</td>
               <td class="text text-white sub_total ">{{k.sub_total}}</td>
               <td class="text text-white total">{{k.grand_total}}</td>
-              <td class="text text-white">
+              <td class="text text-white balance">
                 {% for balance in current_balances %}
                     {% if balance.vendor_id == k.vendor_id %}
                         {{ balance.current_balance }}
                     {% endif %}
                 {% endfor %}
             </td>
+            <td class="bill_type3">vendorcredits</td>
           </tr>
           {% endfor %}
           
@@ -185,27 +193,48 @@ searchInput.addEventListener("input", function () {
          
       </tbody>
       </table> 
+      <div>Purchase bill:
+        <span id="type1"></span>
+      </div>
+      <div>Recurring Bill:
+        <span id="type2"></span>
+      </div>
+      <div>Vendor Credits Bill:
+        <span id="type3"></span>
+      </div>
+      
       <script>
 
         function combineRows() {
-          console.log("hello")
+          //console.log("hello")
             const rows = document.querySelectorAll('#data-table tbody tr');
             const userMap = {};
-
+            const purchasebill = parseFloat(document.querySelectorAll('.bill_type1').length);
+            //console.log(purchasebill,"type1")
+            const recurringbill = parseFloat(document.querySelectorAll('.bill_type2').length);
+            //console.log(recurringbill,"type2")
+            const vendorcredits = parseFloat(document.querySelectorAll('.bill_type3').length);
+            //console.log(vendorcredits,"type3")
+            document.getElementById("type1").innerHTML=purchasebill
+            document.getElementById("type2").innerHTML=recurringbill
+            document.getElementById("type3").innerHTML=vendorcredits
             rows.forEach(row => {
                 const username = row.querySelector('td:nth-child(1)').textContent;
                 const email = row.querySelector('td:nth-child(2)').textContent;
                 const balance = parseFloat(row.querySelector('.sub_total').textContent);
                 const subtotal = parseFloat(row.querySelector('.total').textContent);
-                //const gst = parseFloat(row.querySelector('.gst').textContent);
+                const bal = parseFloat(row.querySelector('.balance').textContent);
+                
+
 
 
                 if (userMap[username]) {
                     userMap[username].balance += balance;
                     userMap[username].subtotal += subtotal;
                     userMap[username].email = email;
+                    userMap[username].bal = bal;
                 } else {
-                    userMap[username] = { balance, subtotal, email};
+                    userMap[username] = { balance, subtotal, email, bal};
                 }
                 
             });
@@ -216,16 +245,18 @@ searchInput.addEventListener("input", function () {
             Object.keys(userMap).forEach(username => {
                 const userData = userMap[username];
                 const newRow = document.createElement('tr');
+                newRow.classList.add('table-tr')
                 newRow.innerHTML = `
                 <td class="text text-white vendor_name">${username}</td>
                 <td class="text text-white vendor_email">${userData.email}</td>
                 <td class="text text-white sub_total">${userData.balance}</td>
                 <td class="text text-white total">${userData.subtotal}</td>
+                <td class="text text-white balance">${userData.bal}</td>
             `;
                 tbody.appendChild(newRow);
             });
         }
-        document.addEventListener('DOMContentLoaded',function(){
+         document.addEventListener('DOMContentLoaded',function(){
           combineRows()
         })
       </script>
@@ -246,10 +277,10 @@ searchInput.addEventListener("input", function () {
   
   searchInput.addEventListener("input", handleInputChange);
   
-  function handleInputChange() {
+  {% comment %} function handleInputChange() {
       const selectedCustomer = this.value;
       const headingElement = document.getElementById("selected_customer_heading");
-      headingElement.innerHTML = selectedCustomer ? `<h2>${selectedCustomer} Balances</h2>` : "<h2>Vendor Balances</h2>";
+      headingElement.innerHTML = selectedCustomer ? `<h2>${selectedCustomer} Balances</h2>` : "<h2>Vendor Balances</h2>"; {% endcomment %}
 
   
   // Add event listener to the input field for the "input" event
@@ -274,15 +305,21 @@ searchInput.addEventListener("input", function () {
   
 </script>
 <script>
-    var $rows = $('table tbody tr');
-    $('#search').keyup(function() {
-        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-        $rows.hide().filter(function() {
-            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-            return ~text.indexOf(val);
-        }).show();
-        calculateTotalBillAmount();
-    });
+  var rows = document.getElementById('dataTableBody').children;
+  var searchInput = document.getElementById('search');
+  
+  searchInput.addEventListener('keyup', function() {
+    combineRows()
+    console.log(rows)
+      var val = this.value.trim().replace(/ +/g, ' ').toLowerCase();
+    
+      rows.forEach(function(row) {
+          var text = row.innerText.replace(/\s+/g, ' ').toLowerCase();
+          row.style.display = text.includes(val) ? 'table-row' : 'none';
+      });
+  
+      calculateTotalBillAmount();
+  });
     function calculateTotalBillAmount() {
       const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
           .filter(row => row.style.display !== 'none');
@@ -306,36 +343,8 @@ searchInput.addEventListener("input", function () {
   function exportAsPDF() {
     const container = document.getElementById('container-to-print');
   
-    // Save the original background color
-    const originalBackgroundColor = container.style.backgroundColor;
-  
-    // Set the container's background color to white
-    container.style.backgroundColor = 'white';
-  
-    // Apply styling changes to the container's content
-    const textWhiteElements = container.querySelectorAll('.text');
-    textWhiteElements.forEach(element => {
-      element.style.color = 'black'; // Set text color to black
-    });
-  
-    const tableElements = container.querySelectorAll('table');
-    const tableCells = container.querySelectorAll('td, th');
-    const tableRows = container.querySelectorAll('tr');
-  
-    tableElements.forEach(table => {
-      table.style.backgroundColor = '#ffffff'; // Set background color to white
-      table.style.color = '#000000'; // Set text color to black
-    });
-  
-    tableCells.forEach(cell => {
-      cell.style.backgroundColor = '#ffffff'; // Set background color to white
-      cell.style.color = '#000000'; // Set text color to black
-      cell.style.border = '1px solid black'; // Add a black border
-    });
-  
-    tableRows.forEach(row => {
-      row.style.backgroundColor = '#000000'; // Set background color to black
-    });
+    // Add a class for PDF styling
+    container.classList.add('pdf-export');
   
     const pdfOptions = {
       margin: 0,
@@ -347,19 +356,13 @@ searchInput.addEventListener("input", function () {
   
     // Generate PDF from the container
     html2pdf().from(container).set(pdfOptions).save().then(() => {
-
-      // Restore the original background color
-      container.style.backgroundColor = originalBackgroundColor;
-
-      textWhiteElements.forEach(element => {
-        element.style.color = 'black'; // Restore original text color
-
-      // Remove the pdf-background class after generating the PDF
-      container.classList.remove('pdf-background');
-      });
+      // Remove the PDF styling class
+      container.classList.remove('pdf-export');
       location.reload();
     });
   }
+  
+  
 
  // Function to save Excel using XLSX
  function exportToExcel() {
