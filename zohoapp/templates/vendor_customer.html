@@ -143,7 +143,7 @@ searchInput.addEventListener("input", function () {
           {% for i in purchasebill %}
           <tr>
               <td class="text text-white vendor_name">{{i.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{i.vendor_email}}</td>
+              <td class="text text-white vendor_email">{{i.vendor_id}}</td>
               <td class="text text-white sub_total">{{i.sub_total}}</td>
               <td class="text text-white total">{{i.total}}</td>
               <td class="text text-white balance">
@@ -159,7 +159,7 @@ searchInput.addEventListener("input", function () {
           {% for j in recurringbill %}
           <tr>
               <td class="text text-white vendor_name">{{j.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{j.vendor_email}}</td>
+              <td class="text text-white vendor_email">{{j.vendor_id}}</td>
               <td class="text text-white sub_total">{{j.sub_total}}</td>
               <td class="text text-white total">{{j.grand_total}}</td>
               <td class="text text-white balance">
@@ -175,7 +175,7 @@ searchInput.addEventListener("input", function () {
           {% for k in vendorcredits %}
           <tr>
               <td class="text text-white vendor_name">{{k.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{k.vendor_email}}</td>
+              <td class="text text-white vendor_email">{{k.vendor_id}}</td>
               <td class="text text-white sub_total ">{{k.sub_total}}</td>
               <td class="text text-white total">{{k.grand_total}}</td>
               <td class="text text-white balance">
@@ -541,6 +541,7 @@ function displayDataInTable(data) {
 `;
 
 tbody.innerHTML += rowHTML;
+calculateTotalBillAmount();
   });
   combineRows();
   displayCurrentBalances(data.current_balances);

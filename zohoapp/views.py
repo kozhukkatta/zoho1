@@ -15089,9 +15089,9 @@ def datesel(request):
         company=company_details.objects.get(user=request.user)
         vend = vendor_table.objects.filter(user=request.user)
         paymentmade = payment_made.objects.filter(user=request.user)
-        print(purchasebill,"purchasebill")
-        print(vendorcredits,"vendorcredits")
-        print(recurringbill,"recurringbill")
+        # print(purchasebill,"purchasebill")
+        # print(vendorcredits,"vendorcredits")
+        # print(recurringbill,"recurringbill")
         data=[]
         purchase_vendor=set()
         for i in purchasebill:
@@ -15111,7 +15111,7 @@ def datesel(request):
                 recurring_vendor.add(i.vendor_name)
                 print(vendor_id)
                 vend = vendor_table.objects.get(user=request.user,id=vendor_id)
-                data.append({'vendor_name': vendor_name,'email':vend.vendor_email,'total_sum':total_table2['total_rsum'],'sub_total':total_table2['subtotal_sum'],'bill_type': 'recurring_bill'})
+                data.append({'vendor_name': vendor_name,'email':vend.vendor_email,'total_sum':total_table2['total_rsum'],'sub_total':total_table2['subtotal_sum'],'bill_type': 'recurring_bill', 'vendor_id': vendor_id})
                 #print(total_table2,vendor_name,'recurring_bills')
 
         vendor_credit_vendor=set()
@@ -15122,7 +15122,7 @@ def datesel(request):
                 vendor_name = ' '.join(vendor_name[0:2])
                 total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user, vendor_date__range=(from_date, to_date)).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
                 vendor_credit_vendor.add(i.vendor_name)
-                data.append({'vendor_name': vendor_name,'email': i.vendor_email,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit'})
+                data.append({'vendor_name': vendor_name,'email': i.vendor_email,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit', 'vendor_id': vendor_id})
                 #print(total_table3,vendor_name,'vendor_credit')
 
         #data=[total_table1,total_table2,total_table3]
@@ -15140,7 +15140,7 @@ def datesel(request):
             vendor = vendor_table.objects.filter(id=vendor_id).first()  
             if vendor:
                 bill.vendor_email = vendor.vendor_email  
-
+                #print(bill.vendor_id,"id1")
         vname3=[]
         for cred in vendorcredits:
             vendor_name = cred.vendor_name.split(' ') 
@@ -15150,6 +15150,7 @@ def datesel(request):
 
             cred.vendor_id = vendor_id
             cred.vendor_name = vendor_name 
+            #print(cred.vendor_id,'id2')
 
       
        
