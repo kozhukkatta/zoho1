@@ -15127,29 +15127,29 @@ def datesel(request):
         #data=[total_table1,total_table2,total_table3]
 
 
-        # vname2=[]
-        # for bill in recurringbill:
-        #     vendor_name = bill.vendor_name.split(' ') 
-        #     vendor_id = vendor_name[0]
-        #     vendor_name = ' '.join(vendor_name[1:])
-        #     vname2.append(vendor_name)
+        vname2=[]
+        for bill in recurringbill:
+            vendor_name = bill.vendor_name.split(' ') 
+            vendor_id = vendor_name[0]
+            vendor_name = ' '.join(vendor_name[1:])
+            vname2.append(vendor_name)
             
-        #     bill.vendor_id = vendor_id
-        #     bill.vendor_name = vendor_name
-        #     vendor = vendor_table.objects.filter(id=vendor_id).first()  
-        #     if vendor:
-        #         bill.vendor_email = vendor.vendor_email  
-        #         #print(bill.vendor_id,"id1")
-        # vname3=[]
-        # for cred in vendorcredits:
-        #     vendor_name = cred.vendor_name.split(' ') 
-        #     vendor_id = vendor_name[2]
-        #     vendor_name = ' '.join(vendor_name[0:2])
-        #     vname3.append(vendor_name)
+            bill.vendor_id = vendor_id
+            bill.vendor_name = vendor_name
+            vendor = vendor_table.objects.filter(id=vendor_id).first()  
+            if vendor:
+                bill.vendor_email = vendor.vendor_email  
+                #print(bill.vendor_id,"id1")
+        vname3=[]
+        for cred in vendorcredits:
+            vendor_name = cred.vendor_name.split(' ') 
+            vendor_id = vendor_name[2]
+            vendor_name = ' '.join(vendor_name[0:2])
+            vname3.append(vendor_name)
 
-        #     cred.vendor_id = vendor_id
-        #     cred.vendor_name = vendor_name 
-        #     #print(cred.vendor_id,'id2')
+            cred.vendor_id = vendor_id
+            cred.vendor_name = vendor_name 
+            #print(cred.vendor_id,'id2')
 
       
        
