@@ -139,59 +139,59 @@ searchInput.addEventListener("input", function () {
               <th class="text" style="color:white">Current Balance</th>
           </tr>
       </thead>
-      <tbody id="dataTableBody">
-          {% for i in purchasebill %}
-          <tr>
-              <td class="text text-white vendor_name">{{i.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{i.vendor_id}}</td>
-              <td class="text text-white sub_total">{{i.sub_total}}</td>
-              <td class="text text-white total">{{i.total}}</td>
-              <td class="text text-white balance">
-                {% for balance in current_balances %}
-                    {% if balance.vendor_id == i.vendor_id %}
-                        {{ balance.current_balance }}
-                    {% endif %}
-                {% endfor %}
-            </td>
-            <td class="bill_type1">purchasebill</td>
-          </tr>
-          {% endfor %}
-          {% for j in recurringbill %}
-          <tr>
-              <td class="text text-white vendor_name">{{j.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{j.vendor_id}}</td>
-              <td class="text text-white sub_total">{{j.sub_total}}</td>
-              <td class="text text-white total">{{j.grand_total}}</td>
-              <td class="text text-white balance">
-                {% for balance in current_balances %}
-                    {% if balance.vendor_id == j.vendor_id %}
-                        {{ balance.current_balance }}
-                    {% endif %}
-                {% endfor %}
-            </td>
-            <td class="bill_type2">recurringbill</td>
-          </tr>
-          {% endfor %}
-          {% for k in vendorcredits %}
-          <tr>
-              <td class="text text-white vendor_name">{{k.vendor_name}}</td>
-              <td class="text text-white vendor_email">{{k.vendor_id}}</td>
-              <td class="text text-white sub_total ">{{k.sub_total}}</td>
-              <td class="text text-white total">{{k.grand_total}}</td>
-              <td class="text text-white balance">
-                {% for balance in current_balances %}
-                    {% if balance.vendor_id == k.vendor_id %}
-                        {{ balance.current_balance }}
-                    {% endif %}
-                {% endfor %}
-            </td>
-            <td class="bill_type3">vendorcredits</td>
-          </tr>
-          {% endfor %}
-          
-         
-         
-      </tbody>
+      <!-- Inside the <tbody id="dataTableBody"> ... </tbody> -->
+<tbody id="dataTableBody">
+  {% for i in purchasebill %}
+      <tr>
+          <td class="text text-white vendor_name">{{ i.vendor_name }}</td>
+          <td class="text text-white vendor_email">{{ i.vendor_id }}</td>
+          <td class="text text-white sub_total">{{ i.sub_total }}</td>
+          <td class="text text-white total">{{ i.total }}</td>
+          <td class="text text-white balance">
+              {% for balance in current_balances %}
+                  {% if balance.vendor_id == i.vendor_id %}
+                      {{ balance.current_balance|default:"N/A"|floatformat }}
+                  {% endif %}
+              {% endfor %}
+          </td>
+          <td class="bill_type1">purchasebill</td>
+      </tr>
+  {% endfor %}
+  {% for j in recurringbill %}
+      <tr>
+          <td class="text text-white vendor_name">{{ j.vendor_name }}</td>
+          <td class="text text-white vendor_email">{{ j.vendor_id }}</td>
+          <td class="text text-white sub_total">{{ j.sub_total }}</td>
+          <td class="text text-white total">{{ j.grand_total }}</td>
+          <td class="text text-white balance">
+              {% for balance in current_balances %}
+                  {% if balance.vendor_id == j.vendor_id %}
+                      {{ balance.current_balance|default:"N/A"|floatformat }}
+                  {% endif %}
+              {% endfor %}
+          </td>
+          <td class="bill_type2">recurringbill</td>
+      </tr>
+  {% endfor %}
+  {% for k in vendorcredits %}
+      <tr>
+          <td class="text text-white vendor_name">{{ k.vendor_name }}</td>
+          <td class="text text-white vendor_email">{{ k.vendor_id }}</td>
+          <td class="text text-white sub_total">{{ k.sub_total }}</td>
+          <td class="text text-white total">{{ k.grand_total }}</td>
+          <td class="text text-white balance">
+              {% for balance in current_balances %}
+                  {% if balance.vendor_id == k.vendor_id %}
+                      {{ balance.current_balance|default:"N/A"|floatformat }}
+                  {% endif %}
+              {% endfor %}
+          </td>
+          <td class="bill_type3">vendorcredits</td>
+      </tr>
+  {% endfor %}
+</tbody>
+
+
       </table> 
       <div>Purchase bill:
         <span id="type1"></span>
@@ -221,20 +221,20 @@ searchInput.addEventListener("input", function () {
             rows.forEach(row => {
                 const username = row.querySelector('td:nth-child(1)').textContent;
                 const email = row.querySelector('td:nth-child(2)').textContent;
-                const balance = parseFloat(row.querySelector('.sub_total').textContent);
-                const subtotal = parseFloat(row.querySelector('.total').textContent);
+                const sub_total = parseFloat(row.querySelector('.sub_total').textContent);
+                const total = parseFloat(row.querySelector('.total').textContent);
                 const bal = parseFloat(row.querySelector('.balance').textContent);
                 
 
 
 
                 if (userMap[username]) {
-                    userMap[username].balance += balance;
-                    userMap[username].subtotal += subtotal;
+                    userMap[username].sub_total += sub_total;
+                    userMap[username].total += total;
                     userMap[username].email = email;
                     userMap[username].bal = bal;
                 } else {
-                    userMap[username] = { balance, subtotal, email, bal};
+                    userMap[username] = { sub_total, total, email, bal};
                 }
                 
             });
@@ -249,13 +249,14 @@ searchInput.addEventListener("input", function () {
                 newRow.innerHTML = `
                 <td class="text text-white vendor_name">${username}</td>
                 <td class="text text-white vendor_email">${userData.email}</td>
-                <td class="text text-white sub_total">${userData.balance}</td>
-                <td class="text text-white total">${userData.subtotal}</td>
+                <td class="text text-white sub_total">${userData.sub_total}</td>
+                <td class="text text-white total">${userData.total}</td>
                 <td class="text text-white balance">${userData.bal}</td>
             `;
                 tbody.appendChild(newRow);
             });
         }
+      
          document.addEventListener('DOMContentLoaded',function(){
           combineRows();
         })
@@ -524,49 +525,85 @@ function calculateTotalBillAmount() {
     };
 //})
 function displayDataInTable(data) {
-  var tbody = document.getElementById('dataTableBody');
+  if (!data || !data.options || !Array.isArray(data.options)) {
+    console.error('Invalid or missing data from server:', data);
+    return;
+  }
 
-  // Clear existing rows
-  tbody.innerHTML = "";
+  const tbody = document.getElementById('dataTableBody');
+  tbody.innerHTML = ''; // Clear existing rows
 
-  // Iterate through data and append rows to the table
-  data.options.forEach(function(option) {
-    var rowHTML = `
-    <tr>
+  console.log('Received data from server:', data);
+
+  data.options.forEach(option => {
+    const rowHTML = `
+      <tr>
         <td class="text text-white vendor_name">${option.vendor_name}</td>
         <td class="text text-white vendor_email">${option.email}</td>
-        <td class="text text-white sub_total">${option.total_sum}</td>
-        <td class="text text-white total">${option.sub_total}</td>
-    </tr>
-`;
+        <td class="text text-white sub_total">${option.sub_total}</td>
+        <td class="text text-white total">${option.total_sum}</td>
+        <td class="text text-white balance">${isNaN(option.bal) ? 'N/A' : option.bal}</td>
+      </tr>
+    `;
 
-tbody.innerHTML += rowHTML;
-calculateTotalBillAmount();
+    tbody.innerHTML += rowHTML;
   });
+
+  // Combine rows and calculate total bill amount
   combineRows();
-  displayCurrentBalances(data.current_balances);
+  calculateTotalBillAmount();
+
+  // Display the current balances
+  if (data.current_balances && Array.isArray(data.current_balances)) {
+    displayCurrentBalances(data.current_balances);
+  }
+calculateTotalBillAmount();
 }
+
+
+
 function displayCurrentBalances(currentBalances) {
+  if (!currentBalances || !Array.isArray(currentBalances)) {
+    console.error('Invalid or missing currentBalances data:', currentBalances);
+    return;
+  }
+
   const tbody = document.getElementById('dataTableBody');
 
-  currentBalances.forEach(function (balance) {
-    const vendorName = balance.vendor_name;
-    const currentBalance = balance.current_balance;
+  console.log('Received currentBalances:', currentBalances);
 
-    // Find the row corresponding to the vendor and update the current_balance cell
-    const rows = tbody.getElementsByTagName('tr');
-    for (let i = 0; i < rows.length; i++) {
-      const vendorNameCell = rows[i].querySelector('td.vendor_name');
-      if (vendorNameCell && vendorNameCell.textContent === vendorName) {
-        const currentBalanceCell = rows[i].querySelector('td.total');
+  currentBalances.forEach(function (balance) {
+    const vendorId = balance.vendor_id;
+    const currentBalance = parseFloat(balance.current_balance);
+
+    console.log(`Vendor ID: ${vendorId}, Received Balance: ${balance.current_balance}, Parsed Balance: ${currentBalance}`);
+
+    if (!isNaN(currentBalance)) {
+      // Find the row corresponding to the vendor and update the current_balance cell
+      const row = Array.from(tbody.getElementsByTagName('tr')).find(row => {
+        const vendorIdCell = row.querySelector('td.vendor_email');
+        return vendorIdCell && vendorIdCell.textContent == vendorId;
+      });
+
+      if (row) {
+        const currentBalanceCell = row.querySelector('td.balance');
         if (currentBalanceCell) {
-          currentBalanceCell.textContent = currentBalance;
+          // Set the value to the current balance
+          currentBalanceCell.textContent = currentBalance.toFixed(2);
         }
-        break;
+      } else {
+        console.log(`No row found for Vendor ID: ${vendorId}`);
       }
+    } else {
+      console.log(`Invalid current_balance for Vendor ID: ${vendorId}`);
     }
   });
 }
+
+
+
+
+
 </script>
 
 

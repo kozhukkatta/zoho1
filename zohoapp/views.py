@@ -15093,6 +15093,7 @@ def datesel(request):
         # print(vendorcredits,"vendorcredits")
         # print(recurringbill,"recurringbill")
         data=[]
+        v_ids = set()
         purchase_vendor=set()
         for i in purchasebill:
             if i.vendor_name not in purchase_vendor:
@@ -15102,6 +15103,7 @@ def datesel(request):
                 for p in vendor:
                     print(p.id,"pid")
                     i.vendor_id=p.id
+                    v_ids.add(i.vendor_id)
                 data.append({'vendor_name': i.vendor_name,'email': i.vendor_email,'vendor_id': i.vendor_id,'total_sum':total_table1['total_psum'],'sub_total':total_table1['subtotal_sum'],'bill_type': 'purchase_bill'})
                 print(total_table1,i.vendor_name,'purchase_bill')
 
@@ -15114,6 +15116,7 @@ def datesel(request):
                 total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user, start_date__range=(from_date, to_date)).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
                 recurring_vendor.add(i.vendor_name)
                 print(vendor_id,"rid")
+                v_ids.add(vendor_id)
                 vendor = vendor_table.objects.get(user=request.user,id=vendor_id)
                 data.append({'vendor_name': vendor_name,'email':vendor.vendor_email,'total_sum':total_table2['total_rsum'],'sub_total':total_table2['subtotal_sum'],'bill_type': 'recurring_bill'})
                 print(total_table2,vendor_name,'recurring_bills')
@@ -15127,44 +15130,40 @@ def datesel(request):
                 total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user, vendor_date__range=(from_date, to_date)).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
                 vendor_credit_vendor.add(i.vendor_name)
                 print(vendor_id,"vid")
+                v_ids.add(vendor_id)
                 data.append({'vendor_name': vendor_name,'email': i.vendor_email,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit', 'vendor_id': vendor_id})
                 print(total_table3,vendor_name,'vendor_credit')
 
         #data=[total_table1,total_table2,total_table3]
 
+        v_ids_list = list(v_ids)
+        print(v_ids_list,"heee")
 
-        # vname2=[]
-        # for bill in recurringbill:
-        #     vendor_name = bill.vendor_name.split(' ') 
-        #     vendor_id = vendor_name[0]
-        #     vendor_name = ' '.join(vendor_name[1:])
-        #     vname2.append(vendor_name)
-            
-        #     bill.vendor_id = vendor_id
-        #     bill.vendor_name = vendor_name
-        #     vendor = vendor_table.objects.filter(id=vendor_id).first()  
-        #     if vendor:
-        #         bill.vendor_email = vendor.vendor_email  
-        #         #print(bill.vendor_id,"id1")
-        # vname3=[]
-        # for cred in vendorcredits:
-        #     vendor_name = cred.vendor_name.split(' ') 
-        #     vendor_id = vendor_name[2]
-        #     vendor_name = ' '.join(vendor_name[0:2])
-        #     vname3.append(vendor_name)
+        
+        current_balances = (
+            paymentmade
+            .filter(vendor_id__in=v_ids_list)
+            .values('vendor_id')
+            .annotate(latest_date=Max('date'))
+            .values('vendor_id', 'current_balance')
+            .order_by('latest_date')
+        )
+        latest_balances = {}
+        for entry in current_balances:
+            vendor_id = entry['vendor_id']
+            latest_balances[vendor_id] = entry
 
-        #     cred.vendor_id = vendor_id
-        #     cred.vendor_name = vendor_name 
-        #     #print(cred.vendor_id,'id2')
+        # Convert the dictionary values back to a list
+        latest_balances_list = list(latest_balances.values())
+        print(latest_balances_list,"haaa")
 
-      
-       
         context={'vend': vend, 
                 'company':company,
                 'purchasebill':purchasebill,
                 'recurringbill':recurringbill,
                 'vendorcredits':vendorcredits,
-                'paymentmade': paymentmade}
+                'paymentmade': paymentmade,
+                'current_balances':latest_balances_list}
         
         # return render(request, 'vendor_customer.html', context)
         return JsonResponse({"options":data})
