@@ -189,6 +189,13 @@ searchInput.addEventListener("input", function () {
           <td class="bill_type3">vendorcredits</td>
       </tr>
   {% endfor %}
+   {% for l in current_balances %}
+      <tr>
+          <td class="text text-white vendor_name">{{ l.vendor_name }}</td>
+          <td class="text text-white vendor_email">{{ l.vendor_id }}</td>
+          <td class="bill_type3">paymentmade</td>
+      </tr>
+  {% endfor %} 
 </tbody>
 
 
