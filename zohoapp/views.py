@@ -15131,6 +15131,7 @@ def datesel(request):
                 vendor_credit_vendor.add(i.vendor_name)
                 print(vendor_id,"vid")
                 v_ids.add(vendor_id)
+                paymentmade
                 data.append({'vendor_name': vendor_name,'email': i.vendor_email,'total_sum':total_table3['total_vsum'],'sub_total':total_table3['subtotal_sum'],'bill_type': 'vendor_credit', 'vendor_id': vendor_id})
                 print(total_table3,vendor_name,'vendor_credit')
 

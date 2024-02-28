@@ -189,13 +189,13 @@ searchInput.addEventListener("input", function () {
           <td class="bill_type3">vendorcredits</td>
       </tr>
   {% endfor %}
-   {% for l in current_balances %}
+  {% comment %} {% for l in current_balances %}
       <tr>
           <td class="text text-white vendor_name">{{ l.vendor_name }}</td>
           <td class="text text-white vendor_email">{{ l.vendor_id }}</td>
           <td class="bill_type3">paymentmade</td>
       </tr>
-  {% endfor %} 
+  {% endfor %}  {% endcomment %}
 </tbody>
 
 
@@ -217,11 +217,11 @@ searchInput.addEventListener("input", function () {
             const rows = document.querySelectorAll('#data-table tbody tr');
             const userMap = {};
             const purchasebill = parseFloat(document.querySelectorAll('.bill_type1').length);
-            //console.log(purchasebill,"type1")
+            console.log(purchasebill,"type1")
             const recurringbill = parseFloat(document.querySelectorAll('.bill_type2').length);
-            //console.log(recurringbill,"type2")
+            console.log(recurringbill,"type2")
             const vendorcredits = parseFloat(document.querySelectorAll('.bill_type3').length);
-            //console.log(vendorcredits,"type3")
+            console.log(vendorcredits,"type3")
             document.getElementById("type1").innerHTML=purchasebill
             document.getElementById("type2").innerHTML=recurringbill
             document.getElementById("type3").innerHTML=vendorcredits
@@ -549,7 +549,7 @@ function displayDataInTable(data) {
         <td class="text text-white vendor_email">${option.email}</td>
         <td class="text text-white sub_total">${option.sub_total}</td>
         <td class="text text-white total">${option.total_sum}</td>
-        <td class="text text-white balance">${isNaN(option.bal) ? 'N/A' : option.bal}</td>
+        <td class="text text-white balance">${! isNaN(option.bal) ? 'N/A' : option.bal}</td>
       </tr>
     `;
 
@@ -564,10 +564,7 @@ function displayDataInTable(data) {
   if (data.current_balances && Array.isArray(data.current_balances)) {
     displayCurrentBalances(data.current_balances);
   }
-calculateTotalBillAmount();
 }
-
-
 
 function displayCurrentBalances(currentBalances) {
   if (!currentBalances || !Array.isArray(currentBalances)) {
@@ -603,9 +600,23 @@ function displayCurrentBalances(currentBalances) {
       }
     } else {
       console.log(`Invalid current_balance for Vendor ID: ${vendorId}`);
+      // If current_balance is NaN, you can set a specific value or message
+      const row = Array.from(tbody.getElementsByTagName('tr')).find(row => {
+        const vendorIdCell = row.querySelector('td.vendor_email');
+        return vendorIdCell && vendorIdCell.textContent == vendorId;
+      });
+
+      if (row) {
+        const currentBalanceCell = row.querySelector('td.balance');
+        if (currentBalanceCell) {
+          // Set a specific value or message for NaN
+          currentBalanceCell.textContent = 'N/A';
+        }
+      }
     }
   });
 }
+
 
 
 
