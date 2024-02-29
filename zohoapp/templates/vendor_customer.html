@@ -510,27 +510,25 @@ function calculateTotalBillAmount() {
    
 
    // $(document).ready(function(){
-   function submitDate(){
-        var d1 = $("#d1").val();
-        var d2 = $("#d2").val();
-        
-        console.log('response')
-
-        $.ajax({
-            url: "/datesel",  // Replace with the URL of your Django view
-            type: "POST",
-            data: { 'd1': d1 , 'd2':d2},
-            success: function(response){
-                //$("#result").html(response);
-                console.log(response)
-                displayDataInTable(response)
-            },
-            error: function(error){
-                console.log(error);
-            }
-        });
+    function submitDate() {
+      var d1 = $("#d1").val();
+      var d2 = $("#d2").val();
+  
+      $.ajax({
+        url: "/datesel",
+        type: "POST",
+        data: { 'd1': d1, 'd2': d2 },
+        success: function(response) {
+          displayDataInTable(response);
+        },
+        error: function(error) {
+          console.log(error);
+        }
+      });
     };
 //})
+
+
 function displayDataInTable(data) {
   if (!data || !data.options || !Array.isArray(data.options)) {
     console.error('Invalid or missing data from server:', data);
@@ -549,7 +547,7 @@ function displayDataInTable(data) {
         <td class="text text-white vendor_email">${option.email}</td>
         <td class="text text-white sub_total">${option.sub_total}</td>
         <td class="text text-white total">${option.total_sum}</td>
-        <td class="text text-white balance">${! isNaN(option.bal) ? 'N/A' : option.bal}</td>
+        <td class="text text-white balance">${!isNaN(option.bal) ? 'N/A' : option.bal}</td>
       </tr>
     `;
 
@@ -616,11 +614,6 @@ function displayCurrentBalances(currentBalances) {
     }
   });
 }
-
-
-
-
-
 
 </script>
 
