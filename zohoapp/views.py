@@ -15115,15 +15115,21 @@ def datesel(request):
                         .values('vendor_id')
                         .annotate(latest_date=Max('date'))
                         .values('vendor_id', 'current_balance')
-                        .order_by('latest_date')
+                        .order_by('-latest_date')
                     )
-                latest_balances = {}
-                for entry in current_balances:
-                    vendor_id = entry['vendor_id']
-                    latest_balances[vendor_id] = entry
-
-                # Convert the dictionary values back to a list
-                latest_balances_list = list(latest_balances.values())
+                #     print(current_balances,"current_balances")
+                # latest_balances = {}
+                # for entry in current_balances:
+                #     vendor_id = entry['vendor_id']
+                #     latest_balances[vendor_id] = entry
+                
+                # print(latest_balances,"latest_balances")
+                # # Convert the dictionary values back to a list
+                # latest_balances_list = list(latest_balances.values())
+                latest_balance = None
+                if current_balances:
+                    latest_balance_entry = current_balances[0]
+                    latest_balance = latest_balance_entry['current_balance']
 
                 data.append({
                     'vendor_name': i.vendor_name,
@@ -15132,7 +15138,7 @@ def datesel(request):
                     'total_sum': total_table1['total_psum'],
                     'sub_total': total_table1['subtotal_sum'],
                     'bill_type': 'purchase_bill',
-                    'current_balances': latest_balances_list,  
+                    'current_balances': latest_balance,  
                 })
 
                 print(total_table1, i.vendor_name, 'purchase_bill')
@@ -15148,21 +15154,26 @@ def datesel(request):
 
                 v_ids.add(vendor_id)
                 current_balances = (
-                    paymentmade
-                    .filter(vendor_id=vendor_id)
-                    .values('vendor_id')
-                    .annotate(latest_date=Max('date'))
-                    .values('vendor_id', 'current_balance')
-                    .order_by('latest_date')
-                )
+                        paymentmade
+                        .filter(vendor_id=vendor_id)
+                        .values('vendor_id')
+                        .annotate(latest_date=Max('date'))
+                        .values('vendor_id', 'current_balance')
+                        .order_by('-latest_date')
+                    )
 
-                latest_balances = {}
-                for entry in current_balances:
-                    vendor_id = entry['vendor_id']
-                    latest_balances[vendor_id] = entry
+                # latest_balances = {}
+                # for entry in current_balances:
+                #     vendor_id = entry['vendor_id']
+                #     latest_balances[vendor_id] = entry
 
-                # Convert the dictionary values back to a list
-                latest_balances_list = list(latest_balances.values())
+                # # Convert the dictionary values back to a list
+                # latest_balances_list = list(latest_balances.values())
+
+                latest_balance = None
+                if current_balances:
+                    latest_balance_entry = current_balances[0]
+                    latest_balance = latest_balance_entry['current_balance']
 
                 vendor = vendor_table.objects.get(user=request.user, id=vendor_id)
                 data.append({
@@ -15171,7 +15182,7 @@ def datesel(request):
                     'total_sum': total_table2['total_rsum'],
                     'sub_total': total_table2['subtotal_sum'],
                     'bill_type': 'recurring_bill',
-                    'current_balances': latest_balances_list,
+                    'current_balances': latest_balance,
                 })
 
                 print(total_table2, vendor_name, 'recurring_bills')
@@ -15187,21 +15198,26 @@ def datesel(request):
 
                 v_ids.add(vendor_id)
                 current_balances = (
-                    paymentmade
-                    .filter(vendor_id=vendor_id)
-                    .values('vendor_id')
-                    .annotate(latest_date=Max('date'))
-                    .values('vendor_id', 'current_balance')
-                    .order_by('latest_date')
-                )
+                        paymentmade
+                        .filter(vendor_id=vendor_id)
+                        .values('vendor_id')
+                        .annotate(latest_date=Max('date'))
+                        .values('vendor_id', 'current_balance')
+                        .order_by('-latest_date')
+                    )
 
-                latest_balances = {}
-                for entry in current_balances:
-                    vendor_id = entry['vendor_id']
-                    latest_balances[vendor_id] = entry
+                # latest_balances = {}
+                # for entry in current_balances:
+                #     vendor_id = entry['vendor_id']
+                #     latest_balances[vendor_id] = entry
 
-                # Convert the dictionary values back to a list
-                latest_balances_list = list(latest_balances.values())
+                # # Convert the dictionary values back to a list
+                # latest_balances_list = list(latest_balances.values())
+
+                latest_balance = None
+                if current_balances:
+                    latest_balance_entry = current_balances[0]
+                    latest_balance = latest_balance_entry['current_balance']
 
                 data.append({
                     'vendor_name': vendor_name,
@@ -15210,7 +15226,7 @@ def datesel(request):
                     'sub_total': total_table3['subtotal_sum'],
                     'bill_type': 'vendor_credit',
                     'vendor_id': vendor_id,
-                    'current_balances': latest_balances_list,
+                    'current_balances': latest_balance,
                 })
 
                 print(total_table3, vendor_name, 'vendor_credit')
@@ -15219,31 +15235,13 @@ def datesel(request):
         v_ids_list = list(v_ids)
         print(v_ids_list,"heee")
 
-        
-        # current_balances = (
-        #     paymentmade
-        #     .filter(vendor_id__in=v_ids_list)
-        #     .values('vendor_id')
-        #     .annotate(latest_date=Max('date'))
-        #     .values('vendor_id', 'current_balance')
-        #     .order_by('latest_date')
-        # )
-        # latest_balances = {}
-        # for entry in current_balances:
-        #     vendor_id = entry['vendor_id']
-        #     latest_balances[vendor_id] = entry
-
-        # # Convert the dictionary values back to a list
-        # latest_balances_list = list(latest_balances.values())
-        # print(latest_balances_list,"haaa")
-
         context={'vend': vend, 
                 'company':company,
                 'purchasebill':purchasebill,
                 'recurringbill':recurringbill,
                 'vendorcredits':vendorcredits,
                 'paymentmade': paymentmade,
-                'current_balances':latest_balances_list}
+                'current_balances':latest_balance}
         
         # return render(request, 'vendor_customer.html', context)
         return JsonResponse({"options":data})
