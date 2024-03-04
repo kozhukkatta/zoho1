@@ -144,7 +144,7 @@ searchInput.addEventListener("input", function () {
   {% for i in purchasebill %}
       <tr>
           <td class="text text-white vendor_name">{{ i.vendor_name }}</td>
-          <td class="text text-white vendor_email">{{ i.vendor_id }}</td>
+          <td class="text text-white vendor_email">{{ i.vendor_email}}</td>
           <td class="text text-white sub_total">{{ i.sub_total }}</td>
           <td class="text text-white total">{{ i.total }}</td>
           <td class="text text-white balance">
@@ -160,7 +160,7 @@ searchInput.addEventListener("input", function () {
   {% for j in recurringbill %}
       <tr>
           <td class="text text-white vendor_name">{{ j.vendor_name }}</td>
-          <td class="text text-white vendor_email">{{ j.vendor_id }}</td>
+          <td class="text text-white vendor_email">{{ j.vendor_mail }}</td>
           <td class="text text-white sub_total">{{ j.sub_total }}</td>
           <td class="text text-white total">{{ j.grand_total }}</td>
           <td class="text text-white balance">
@@ -176,7 +176,7 @@ searchInput.addEventListener("input", function () {
   {% for k in vendorcredits %}
       <tr>
           <td class="text text-white vendor_name">{{ k.vendor_name }}</td>
-          <td class="text text-white vendor_email">{{ k.vendor_id }}</td>
+          <td class="text text-white vendor_email">{{ k.vendor_email}}</td>
           <td class="text text-white sub_total">{{ k.sub_total }}</td>
           <td class="text text-white total">{{ k.grand_total }}</td>
           <td class="text text-white balance">
@@ -189,13 +189,6 @@ searchInput.addEventListener("input", function () {
           <td class="bill_type3">vendorcredits</td>
       </tr>
   {% endfor %}
-  {% comment %} {% for l in current_balances %}
-      <tr>
-          <td class="text text-white vendor_name">{{ l.vendor_name }}</td>
-          <td class="text text-white vendor_email">{{ l.vendor_id }}</td>
-          <td class="bill_type3">paymentmade</td>
-      </tr>
-  {% endfor %}  {% endcomment %}
 </tbody>
 
 
@@ -208,12 +201,13 @@ searchInput.addEventListener("input", function () {
       </div>
       
       <script>
+      
 
         function combineRows() {
           //console.log("hello")
             const rows = document.querySelectorAll('#data-table tbody tr');
             const userMap = {};
-           //const purchasebill = parseFloat(document.querySelectorAll('.bill_type1').length);
+            //const purchasebill = parseFloat(document.querySelectorAll('.bill_type1').length);
             //console.log(purchasebill,"type1")
             //const recurringbill = parseFloat(document.querySelectorAll('.bill_type2').length);
             //console.log(recurringbill,"type2")
@@ -541,6 +535,10 @@ function displayDataInTable(data) {
 
   console.log('Received data from server:', data);
 
+  let purchaseBillCount = 0;
+  let recurringBillCount = 0;
+  let vendorCreditBillCount = 0;
+
   data.options.forEach(option => {
     const rowHTML = `
       <tr>
@@ -553,12 +551,34 @@ function displayDataInTable(data) {
     `;
 
     tbody.innerHTML += rowHTML;
+
+    // Update the counts based on the bill type and total_rows_selected
+    switch (option.bill_type) {
+      case 'purchase_bill':
+        purchaseBillCount += option.total_rows_selected;
+        break;
+      case 'recurring_bill':
+        recurringBillCount += option.total_rows_selected;
+        break;
+      case 'vendor_credit':
+        vendorCreditBillCount += option.total_rows_selected;
+        break;
+    }
   });
+
+  // Display the count of bills
+  document.getElementById('type1').textContent = purchaseBillCount;
+  document.getElementById('type2').textContent = recurringBillCount;
+  document.getElementById('type3').textContent = vendorCreditBillCount;
 
   // Combine rows and calculate total bill amount
   combineRows();
   calculateTotalBillAmount();
 }
+
+
+
+
 
 
 function displayCurrentBalances(currentBalances) {

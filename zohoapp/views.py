@@ -43,7 +43,7 @@ from calendar import HTMLCalendar
 from django.template import loader
 from .models import customer  # Import your Customer model
 ###########
-from django.db.models import Max,F
+from django.db.models import Max,F,Count
 from django.views.decorators.csrf import csrf_exempt
 def index(request):
 
@@ -15138,7 +15138,8 @@ def datesel(request):
                     'total_sum': total_table1['total_psum'],
                     'sub_total': total_table1['subtotal_sum'],
                     'bill_type': 'purchase_bill',
-                    'current_balances': latest_balance,  
+                    'current_balances': latest_balance,
+                    'total_rows_selected': len(purchasebill),  
                 })
 
                 print(total_table1, i.vendor_name, 'purchase_bill')
@@ -15183,6 +15184,7 @@ def datesel(request):
                     'sub_total': total_table2['subtotal_sum'],
                     'bill_type': 'recurring_bill',
                     'current_balances': latest_balance,
+                    'total_rows_selected': len(recurringbill),
                 })
 
                 print(total_table2, vendor_name, 'recurring_bills')
@@ -15227,6 +15229,7 @@ def datesel(request):
                     'bill_type': 'vendor_credit',
                     'vendor_id': vendor_id,
                     'current_balances': latest_balance,
+                    'total_rows_selected': len(vendorcredits)
                 })
 
                 print(total_table3, vendor_name, 'vendor_credit')
@@ -15241,7 +15244,7 @@ def datesel(request):
                 'recurringbill':recurringbill,
                 'vendorcredits':vendorcredits,
                 'paymentmade': paymentmade,
-                'current_balances':latest_balance}
+                }
         
         # return render(request, 'vendor_customer.html', context)
         return JsonResponse({"options":data})
