@@ -15101,7 +15101,7 @@ def datesel(request):
 
         for i in purchasebill:
             if i.vendor_name not in purchase_vendor:
-                total_table1 = PurchaseBills.objects.filter(vendor_name=i.vendor_name, user=request.user, bill_date__range=(from_date, to_date)).aggregate(total_psum=Sum('total'), subtotal_sum=Sum('sub_total'))
+                total_table1 = PurchaseBills.objects.filter(vendor_name=i.vendor_name, user=request.user, bill_date__range=(from_date, to_date)).aggregate(total_psum=Sum('total'), subtotal_sum=Sum('sub_total'), num_bills=Count('id'))
                 purchase_vendor.add(i.vendor_name)
 
                 vendor = vendor_table.objects.filter(vendor_email=i.vendor_email)
@@ -15138,6 +15138,7 @@ def datesel(request):
                     'total_sum': total_table1['total_psum'],
                     'sub_total': total_table1['subtotal_sum'],
                     'bill_type': 'purchase_bill',
+                    'num_bills': total_table1['num_bills'],
                     'current_balances': latest_balance,
                     'total_rows_selected': len(purchasebill),  
                 })
@@ -15150,7 +15151,7 @@ def datesel(request):
                 vendor_name_parts = i.vendor_name.split(' ')
                 vendor_id = vendor_name_parts[0]
                 vendor_name = ' '.join(vendor_name_parts[1:])
-                total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user, start_date__range=(from_date, to_date)).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
+                total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user, start_date__range=(from_date, to_date)).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'),num_recurring_bills=Count('id'))
                 recurring_vendor.add(i.vendor_name)
 
                 v_ids.add(vendor_id)
@@ -15182,6 +15183,7 @@ def datesel(request):
                     'email': vendor.vendor_email,
                     'total_sum': total_table2['total_rsum'],
                     'sub_total': total_table2['subtotal_sum'],
+                    'num_bills': total_table2['num_recurring_bills'],
                     'bill_type': 'recurring_bill',
                     'current_balances': latest_balance,
                     'total_rows_selected': len(recurringbill),
@@ -15195,7 +15197,7 @@ def datesel(request):
                 vendor_name_parts = i.vendor_name.split(' ')
                 vendor_id = vendor_name_parts[2]
                 vendor_name = ' '.join(vendor_name_parts[0:2])
-                total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user, vendor_date__range=(from_date, to_date)).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'))
+                total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user, vendor_date__range=(from_date, to_date)).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'),num_vendor_credit_bills=Count('id'))
                 vendor_credit_vendor.add(i.vendor_name)
 
                 v_ids.add(vendor_id)
@@ -15226,10 +15228,11 @@ def datesel(request):
                     'email': i.vendor_email,
                     'total_sum': total_table3['total_vsum'],
                     'sub_total': total_table3['subtotal_sum'],
+                    'num_bills': total_table3['num_vendor_credit_bills'],
                     'bill_type': 'vendor_credit',
                     'vendor_id': vendor_id,
                     'current_balances': latest_balance,
-                    'total_rows_selected': len(vendorcredits)
+                    'total_rows_selected': len(vendorcredits),
                 })
 
                 print(total_table3, vendor_name, 'vendor_credit')
