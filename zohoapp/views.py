@@ -15010,6 +15010,17 @@ def vendorbal_customer(request):
             p.vendor_id=i.id
             v_ids.add(p.vendor_id)
             #print(v_ids,"p")
+    # for p in purchasebill:
+    #     vendor_email = p.vendor_email  # Assuming vendor_name is the field you want to filter by
+    #     vendor_count = vendor_table.objects.filter(vendor_email=vendor_email).count()
+        
+    #     print(f"Vendor: {vendor_email}, Rows Selected: {vendor_count}")
+    
+    # for i in vendor_table.objects.filter(vendor_email=vendor_email):
+    #     print(i.id)
+    #     p.vendor_id = i.id
+    #     v_ids.add(p.vendor_id)
+
 
     vname2=[]
     for bill in recurringbill:

@@ -197,7 +197,7 @@ searchInput.addEventListener("input", function () {
       <div id="total-bill-amount" class="mt-3" class="text text-white" style="margin-left:55vw;"></div>
       <div>
         <div>Purchase bill: <span id="type1"></span></div>
-        <div>Recurring Bill: <span id="type2"></span></div>
+        <div>Recurring Bill: <span id="type2"></span><div>
         <div>Vendor Credits Bill: <span id="type3"></span></div>
         
       </div>
@@ -314,7 +314,7 @@ searchInput.addEventListener("input", function () {
   var searchInput = document.getElementById('search');
   
   searchInput.addEventListener('keyup', function() {
-    combineRows()
+    combineRows();
     console.log(rows)
       var val = this.value.trim().replace(/ +/g, ' ').toLowerCase();
     
@@ -322,7 +322,6 @@ searchInput.addEventListener("input", function () {
           var text = row.innerText.replace(/\s+/g, ' ').toLowerCase();
           row.style.display = text.includes(val) ? 'table-row' : 'none';
       });
-  
       calculateTotalBillAmount();
   });
     function calculateTotalBillAmount() {
@@ -542,6 +541,15 @@ function displayDataInTable(data) {
   let vendorCreditBillCount = 0;
 
   data.options.forEach(option => {
+  if (option.bill_type=="purchase_bill"){
+    var classname="bill_type1"
+  }
+  else if (option.bill_type=="recurring_bill"){
+    var classname="bill_type2"
+  }
+  else{
+    var classname="bill_type3"
+  }
     const rowHTML = `
       <tr>
         <td class="text text-white vendor_name">${option.vendor_name}</td>
@@ -549,29 +557,16 @@ function displayDataInTable(data) {
         <td class="text text-white sub_total">${option.sub_total}</td>
         <td class="text text-white total">${option.total_sum}</td>
         <td class="text text-white balance">${!isNaN(option.current_balances) ? option.current_balances.toFixed(2) : 'N/A'}</td>
+        <td class="${classname}"></td>
       </tr>
     `;
 
     tbody.innerHTML += rowHTML;
 
-    // Update the counts based on the bill type
-    switch (option.bill_type) {
-      case 'purchase_bill':
-        purchaseBillCount += option.total_rows_selected;
-        break;
-      case 'recurring_bill':
-        recurringBillCount += option.total_rows_selected;
-        break;
-      case 'vendor_credit':
-        vendorCreditBillCount += option.total_rows_selected;
-        break;
-    }    
+    
   });
 
-  // Display the count of each bill type
-  document.getElementById('type1').textContent = purchaseBillCount;
-  document.getElementById('type2').textContent = recurringBillCount;
-  document.getElementById('type3').textContent = vendorCreditBillCount;
+
 
   // Combine rows and calculate total bill amount
   combineRows();
