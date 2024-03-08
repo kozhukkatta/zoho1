@@ -261,9 +261,9 @@ searchInput.addEventListener("input", function () {
             });
         }
       
-         document.addEventListener('DOMContentLoaded',function(){
-          combineRows();
-        })
+        // document.addEventListener('DOMContentLoaded',function(){
+        //  combineRows();
+        //})
       </script>
       <div id="total-bill-amount" class="mt-3" class="text text-white" style="margin-left:55vw;"></div>
       <div>
@@ -314,7 +314,7 @@ searchInput.addEventListener("input", function () {
   var searchInput = document.getElementById('search');
   
   searchInput.addEventListener('keyup', function() {
-    combineRows();
+    //combineRows();
     console.log(rows)
       var val = this.value.trim().replace(/ +/g, ' ').toLowerCase();
     
@@ -324,6 +324,47 @@ searchInput.addEventListener("input", function () {
       });
       calculateTotalBillAmount();
   });
+
+
+  var rows = document.getElementById('dataTableBody').children;
+var searchInput = document.getElementById('search');
+
+searchInput.addEventListener('keyup', function () {
+    var val = this.value.trim().replace(/ +/g, ' ').toLowerCase();
+
+    // Initialize counts for each bill type
+    var purchasebill = 0;
+    var recurringbill = 0;
+    var vendorcredits = 0;
+
+    rows.forEach(function (row) {
+        var text = row.innerText.replace(/\s+/g, ' ').toLowerCase();
+        var display = text.includes(val) ? 'table-row' : 'none';
+        row.style.display = display;
+
+        // Check if the row is visible (based on the search)
+        if (display === 'table-row') {
+            // Increment the count based on the class of the row
+            if (row.classList.contains('bill_type1')) {
+                purchasebill++;
+            } else if (row.classList.contains('bill_type2')) {
+                recurringbill++;
+            } else if (row.classList.contains('bill_type3')) {
+                vendorcredits++;
+            }
+        }
+    });
+
+    // Update the count display for each bill type
+    document.getElementById("type1").innerHTML = purchasebill;
+    document.getElementById("type2").innerHTML = recurringbill;
+    document.getElementById("type3").innerHTML = vendorcredits;
+
+    // Calculate and display the total bill amount
+    calculateTotalBillAmount();
+});
+
+
     function calculateTotalBillAmount() {
       const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
           .filter(row => row.style.display !== 'none');
@@ -536,9 +577,6 @@ function displayDataInTable(data) {
 
   console.log('Received data from server:', data);
 
-  let purchaseBillCount = 0;
-  let recurringBillCount = 0;
-  let vendorCreditBillCount = 0;
 
   data.options.forEach(option => {
   if (option.bill_type=="purchase_bill"){
