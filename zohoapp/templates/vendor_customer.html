@@ -310,7 +310,7 @@ searchInput.addEventListener("input", function () {
   
 </script>
 <script>
-  var rows = document.getElementById('dataTableBody').children;
+  {% comment %} var rows = document.getElementById('dataTableBody').children;
   var searchInput = document.getElementById('search');
   
   searchInput.addEventListener('keyup', function() {
@@ -323,7 +323,7 @@ searchInput.addEventListener("input", function () {
           row.style.display = text.includes(val) ? 'table-row' : 'none';
       });
       calculateTotalBillAmount();
-  });
+  }); {% endcomment %}
 
 
   var rows = document.getElementById('dataTableBody').children;
