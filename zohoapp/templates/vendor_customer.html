@@ -329,18 +329,14 @@ searchInput.addEventListener("input", function () {
   }); {% endcomment %}
 
 
-  var rows = document.getElementById('dataTableBody').children;
+  {% comment %} var rows = document.getElementById('dataTableBody').children;
   var searchInput = document.getElementById('search');
 
 
   searchInput.addEventListener('keyup', function () {
     var val = this.value.trim().replace(/ +/g, ' ').toLowerCase();
 
-    // Initialize counts for each bill type
-    purchasebillCount = 0;
-    recurringbillCount = 0;
-    vendorcreditsCount = 0;
-
+    
     rows.forEach(function (row) {
         var text = row.innerText.replace(/\s+/g, ' ').toLowerCase();
         var display = text.includes(val) ? 'table-row' : 'none';
@@ -350,11 +346,11 @@ searchInput.addEventListener("input", function () {
         if (display === 'table-row') {
             // Increment the count based on the class of the row
             if (row.classList.contains('bill_type1')) {
-                purchasebillCount++;
+                purchasebillCount;
             } else if (row.classList.contains('bill_type2')) {
-                recurringbillCount++;
+                recurringbillCount;
             } else if (row.classList.contains('bill_type3')) {
-                vendorcreditsCount++;
+                vendorcreditsCount;
             }
         }
     });
@@ -367,9 +363,9 @@ searchInput.addEventListener("input", function () {
 
     // Calculate and display the total bill amount
     calculateTotalBillAmount();
-});
+}); {% endcomment %}
 
-  
+  //create a js function to filter the data in the table by name and get the count of the bill_type1,bill_type2,bill_type3
   
 
 
