@@ -85,7 +85,7 @@
 </div>
 <div  style="top: 7rem; " > 
   <div class="mt-1">
-      <datalist onclick="getValue()" id="customers" >
+      <datalist  id="customers" >
         
         {% for v in vend %}
           <option value="{{ v.first_name }} {{ v.last_name }}" >
@@ -95,7 +95,7 @@
       </datalist>
   </div>
   <label>Vendor Name :</label>
-<input type="text" onclick="getValue()" id="search"  placeholder="Search.." autocomplete="off"  list="customers">
+<input type="text" id="search"  placeholder="Search.." autocomplete="off"  list="customers">
 <p id="result" hidden>'{{company.company_name}}'</p>
 <script>
 var searchInput = document.getElementById("search");
@@ -204,6 +204,24 @@ searchInput.addEventListener("input", function () {
       
       <script>
       
+        function updateBillCounts() {
+          const purchasebillCount = parseFloat(document.querySelectorAll('.bill_type1').length);
+          console.log(purchasebillCount, "type1");
+      
+          const recurringbillCount = parseFloat(document.querySelectorAll('.bill_type2').length);
+          console.log(recurringbillCount, "type2");
+      
+          const vendorcreditsCount = parseFloat(document.querySelectorAll('.bill_type3').length);
+          console.log(vendorcreditsCount, "type3");
+      
+          document.getElementById("type1").innerHTML = purchasebillCount;
+          document.getElementById("type2").innerHTML = recurringbillCount;
+          document.getElementById("type3").innerHTML = vendorcreditsCount;
+      }
+      
+  
+      
+      
 
         function combineRows() {
           //console.log("hello")
@@ -215,16 +233,7 @@ searchInput.addEventListener("input", function () {
             //console.log(recurringbill,"type2")
             //const vendorcredits = parseFloat(document.querySelectorAll('.bill_type3').length);
             //console.log(vendorcredits,"type3")
-            const purchasebill = parseFloat(document.querySelectorAll('.bill_type1').length);
-            console.log(purchasebill,"type1")
-            const recurringbill = parseFloat(document.querySelectorAll('.bill_type2').length);
-            console.log(recurringbill,"type2")
-            const vendorcredits = parseFloat(document.querySelectorAll('.bill_type3').length);
-            console.log(vendorcredits,"type3")
-
-            document.getElementById("type1").innerHTML = purchasebill;
-            document.getElementById("type2").innerHTML = recurringbill;
-            document.getElementById("type3").innerHTML = vendorcredits;
+            
             rows.forEach(row => {
                 const username = row.querySelector('td:nth-child(1)').textContent;
                 const email = row.querySelector('td:nth-child(2)').textContent;
@@ -264,9 +273,11 @@ searchInput.addEventListener("input", function () {
             });
         }
       
-        {% comment %} document.addEventListener('DOMContentLoaded',function(){
+        document.addEventListener('DOMContentLoaded',function(){
+          updateBillCounts();
           combineRows();
-        }) {% endcomment %}
+          
+        })
       </script>
       <div id="total-bill-amount" class="mt-3" class="text text-white" style="margin-left:55vw;"></div>
       <div>
@@ -313,7 +324,7 @@ searchInput.addEventListener("input", function () {
   
 </script>
 <script>
-  {% comment %} var rows = document.getElementById('dataTableBody').children;
+ var rows = document.getElementById('dataTableBody').children;
   var searchInput = document.getElementById('search');
   
   searchInput.addEventListener('keyup', function() {
@@ -326,7 +337,7 @@ searchInput.addEventListener("input", function () {
           row.style.display = text.includes(val) ? 'table-row' : 'none';
       });
       calculateTotalBillAmount();
-  }); {% endcomment %}
+  });
 
 
   {% comment %} var rows = document.getElementById('dataTableBody').children;
@@ -365,7 +376,7 @@ searchInput.addEventListener("input", function () {
     calculateTotalBillAmount();
 }); {% endcomment %}
 
-  //create a js function to filter the data in the table by name and get the count of the bill_type1,bill_type2,bill_type3
+  
   
 
 
