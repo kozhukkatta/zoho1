@@ -15000,6 +15000,11 @@ def vendorbal_customer(request):
     vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user)
     paymentmade = payment_made.objects.filter(user=request.user)
 
+    pb=PurchaseBills.objects.filter(user=request.user).count()
+    rb=recurring_bills.objects.filter(user=request.user).count()
+    vb = Vendor_Credits_Bills.objects.filter(user=request.user).count()
+
+
     v_ids = set()
 
     vname1=[]
@@ -15083,7 +15088,10 @@ def vendorbal_customer(request):
             'recurringbill':recurringbill,
             'vendorcredits':vendorcredits,
             'paymentmade': paymentmade,
-            'current_balances':latest_balances_list}
+            'current_balances':latest_balances_list,
+            'purchasebillcount':pb,
+            'recurringbillcount':rb,
+            'vendorcreditscount':vb,}
     
     return render(request, 'vendor_customer.html', context)
 
@@ -15100,9 +15108,6 @@ def datesel(request):
         company=company_details.objects.get(user=request.user)
         vend = vendor_table.objects.filter(user=request.user)
         paymentmade = payment_made.objects.filter(user=request.user)
-        # print(purchasebill,"purchasebill")
-        # print(vendorcredits,"vendorcredits")
-        # print(recurringbill,"recurringbill")
         data=[]
         v_ids = set()
        
@@ -15128,15 +15133,6 @@ def datesel(request):
                         .values('vendor_id', 'current_balance')
                         .order_by('-latest_date')
                     )
-                #     print(current_balances,"current_balances")
-                # latest_balances = {}
-                # for entry in current_balances:
-                #     vendor_id = entry['vendor_id']
-                #     latest_balances[vendor_id] = entry
-                
-                # print(latest_balances,"latest_balances")
-                # # Convert the dictionary values back to a list
-                # latest_balances_list = list(latest_balances.values())
                 latest_balance = None
                 if current_balances:
                     latest_balance_entry = current_balances[0]
@@ -15155,7 +15151,6 @@ def datesel(request):
                 })
 
                 print(total_table1, i.vendor_name, 'purchase_bill')
-
         recurring_vendor = set()
         for i in recurringbill:
             if i.vendor_name not in recurring_vendor:
@@ -15164,7 +15159,6 @@ def datesel(request):
                 vendor_name = ' '.join(vendor_name_parts[1:])
                 total_table2 = recurring_bills.objects.filter(vendor_name=i.vendor_name, user=request.user, start_date__range=(from_date, to_date)).aggregate(total_rsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'),num_recurring_bills=Count('id'))
                 recurring_vendor.add(i.vendor_name)
-
                 v_ids.add(vendor_id)
                 current_balances = (
                         paymentmade
@@ -15174,15 +15168,6 @@ def datesel(request):
                         .values('vendor_id', 'current_balance')
                         .order_by('-latest_date')
                     )
-
-                # latest_balances = {}
-                # for entry in current_balances:
-                #     vendor_id = entry['vendor_id']
-                #     latest_balances[vendor_id] = entry
-
-                # # Convert the dictionary values back to a list
-                # latest_balances_list = list(latest_balances.values())
-
                 latest_balance = None
                 if current_balances:
                     latest_balance_entry = current_balances[0]
@@ -15201,7 +15186,6 @@ def datesel(request):
                 })
 
                 print(total_table2, vendor_name, 'recurring_bills')
-
         vendor_credit_vendor = set()
         for i in vendorcredits:
             if i.vendor_name not in vendor_credit_vendor:
@@ -15210,7 +15194,6 @@ def datesel(request):
                 vendor_name = ' '.join(vendor_name_parts[0:2])
                 total_table3 = Vendor_Credits_Bills.objects.filter(vendor_name=i.vendor_name, user=request.user, vendor_date__range=(from_date, to_date)).aggregate(total_vsum=Sum('grand_total'), subtotal_sum=Sum('sub_total'),num_vendor_credit_bills=Count('id'))
                 vendor_credit_vendor.add(i.vendor_name)
-
                 v_ids.add(vendor_id)
                 current_balances = (
                         paymentmade
@@ -15220,15 +15203,6 @@ def datesel(request):
                         .values('vendor_id', 'current_balance')
                         .order_by('-latest_date')
                     )
-
-                # latest_balances = {}
-                # for entry in current_balances:
-                #     vendor_id = entry['vendor_id']
-                #     latest_balances[vendor_id] = entry
-
-                # # Convert the dictionary values back to a list
-                # latest_balances_list = list(latest_balances.values())
-
                 latest_balance = None
                 if current_balances:
                     latest_balance_entry = current_balances[0]
@@ -15247,7 +15221,6 @@ def datesel(request):
                 })
 
                 print(total_table3, vendor_name, 'vendor_credit')
-        #data=[total_table1,total_table2,total_table3]
 
         v_ids_list = list(v_ids)
         print(v_ids_list,"heee")
@@ -15259,9 +15232,100 @@ def datesel(request):
                 'vendorcredits':vendorcredits,
                 'paymentmade': paymentmade,
                 }
-        
-        # return render(request, 'vendor_customer.html', context)
         return JsonResponse({"options":data})
+
+###################################################
+@csrf_exempt
+def namesel(request):
+    if request.method == 'POST':
+        name = request.POST['search']
+        company = company_details.objects.get(user=request.user)
+
+        # Filter rows based on vendor name containing the search term
+        purchasebill = PurchaseBills.objects.filter(user=request.user, vendor_name__icontains=name)
+        vendorcredits = Vendor_Credits_Bills.objects.filter(user=request.user, vendor_name__icontains=name)
+        recurringbill = recurring_bills.objects.filter(user=request.user, vendor_name__icontains=name)
+        vend = vendor_table.objects.filter(user=request.user, first_name__icontains=name) | vendor_table.objects.filter(user=request.user, last_name__icontains=name)
+
+        paymentmade = payment_made.objects.filter(user=request.user)
+
+        purchasebill_count = purchasebill.count()
+        vendorcredits_count = vendorcredits.count()
+        recurringbill_count = recurringbill.count()
+        vend_count = vend.count()
+
+        data = []
+       
+
+        for bill in purchasebill:
+            vendor = vendor_table.objects.filter(vendor_email=bill.vendor_email)
+            for p in vendor:
+                bill.vendor_id = p.id
+                #v_ids = {bill.vendor_id}
+
+                current_balance = paymentmade.filter(vendor=bill.vendor_id).latest('date').current_balance
+            data.append({
+                'vendor_name': bill.vendor_name,
+                'email': bill.vendor_email,
+                'sub_total': bill.sub_total,
+                'total_sum': bill.total,
+                'bill_type': 'purchase_bill',
+                'current_balances': current_balance
+            })
+            
+        for bill in vendorcredits:
+            vendor_name_parts = bill.vendor_name.split(' ')
+            vendor_id = vendor_name_parts[2]
+            vendor_name = ' '.join(vendor_name_parts[0:2])
+            current_balance = paymentmade.filter(vendor_id=vendor_id).latest('date').current_balance
+            data.append({
+                'vendor_name': vendor_name,
+                'email': bill.vendor_email,
+                'sub_total': bill.sub_total,
+                'total_sum': bill.grand_total,
+                'bill_type': 'vendor_credit',
+                'current_balances': current_balance
+            })
+
+        for bill in recurringbill:
+            vendor_name_parts = bill.vendor_name.split(' ')
+            vendor_id = vendor_name_parts[0]
+            vendor_name = ' '.join(vendor_name_parts[1:])
+            current_balance_entry = paymentmade.filter(vendor_id=vendor_id).latest('date')
+            current_balance = current_balance_entry.current_balance if current_balance_entry else None
+            vendor = vendor_table.objects.get(user=request.user, id=vendor_id)
+            data.append({
+                'vendor_name': vendor_name,
+                'email': vendor.vendor_email,
+                'sub_total': bill.sub_total,
+                'total_sum': bill.grand_total,
+                'bill_type': 'recurring_bill',
+                'current_balances': current_balance
+            })
+
+
+        # for vendor in vend:
+        #     current_balance = paymentmade.filter(vendor_email=vendor.vendor_email).latest('date').current_balance
+        #     data.append({
+        #         'vendor_name': vendor.first_name + ' ' + vendor.last_name,
+        #         'email': vendor.vendor_email,
+        #         'sub_total': None,
+        #         'total_sum': None,
+        #         'current_balances': current_balance
+        #     })
+
+        # Construct the response data including counts
+        response_data = {
+            "options": data,
+            "purchasebillcount": purchasebill_count,
+            "vendorcreditscount": vendorcredits_count,
+            "recurringbillcount": recurringbill_count,
+           # "vend_count": vend_count
+        }
+
+        return JsonResponse(response_data)
+
+###################################################
 
 def bill_details(request):
     company = company_details.objects.get(user=request.user)
