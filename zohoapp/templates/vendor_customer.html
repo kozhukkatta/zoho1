@@ -155,13 +155,13 @@ searchInput.addEventListener("input", function () {
                   {% endif %}
               {% endfor %}
           </td>
-          
+          <td class="type1">purchasebill</td>
       </tr>
   {% endfor %}
   {% for j in recurringbill %}
       <tr>
           <td class="text text-white vendor_name">{{ j.vendor_name }}</td>
-          <td class="text text-white vendor_email">{{ j.vendor_mail }}</td>
+          <td class="text text-white vendor_email">{{ j.vendor_email }}</td>
           <td class="text text-white sub_total">{{ j.sub_total }}</td>
           <td class="text text-white total">{{ j.grand_total }}</td>
           <td class="text text-white balance">
@@ -171,7 +171,7 @@ searchInput.addEventListener("input", function () {
                   {% endif %}
               {% endfor %}
           </td>
-          
+          <td class="type2">recurringbill</td>
       </tr>
   {% endfor %}
   {% for k in vendorcredits %}
@@ -187,7 +187,7 @@ searchInput.addEventListener("input", function () {
                   {% endif %}
               {% endfor %}
           </td>
-         
+          <td class="type3">vendorcredits</td>
       </tr>
   {% endfor %}
 </tbody>
